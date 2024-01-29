@@ -59,6 +59,31 @@ WebFS provides a flexible and intuitive platform for creating web applications w
 
 We welcome contributions from the community. If you'd like to contribute to WebFS, please follow our [contribution guidelines](CONTRIBUTING.md).
 
+## Modules
+
+### Generator Module
+
+The `generator` module is an object-based component of WebFS that allows you to extend the functionality based on your specific requirements. This module will be automatically executed, taking into account its dependencies.
+
+#### Dependencies
+
+- `express.app`: This module is a prerequisite for the `generator` module.
+
+#### Usage
+
+The `generator` module exports an object with the following structure:
+
+```javascript
+module.exports = {
+    dependOn: ['express.app'],
+    name: 'generator',
+    run: function (program, name) {
+        console.log(`Running ${name}`);
+
+        // Here we can do whatever like grab modules for generator and represent them here
+    }
+}
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
