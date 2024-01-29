@@ -33,7 +33,7 @@ program.modules.dependOn = async function(reqFunc,program,name,callback) {
             let toCheck = split[spl];
             if (objectData[toCheck] == undefined) {
                 await setTimeout(async function(){
-                    return await program.modules.dependOn(reqFunc,program,name,callback);
+                    await program.modules.dependOn(reqFunc,program,name,callback);
                 },200);
             } else {
                 // New object thing and og next
@@ -53,9 +53,9 @@ program.modules.dependOn = async function(reqFunc,program,name,callback) {
             // We need to wait and try again untill we can return
             console.log(`DependOn Fail: ${dependOn}`);
             await setTimeout(async function(){
-                return await program.modules.dependOn(reqFunc,program);
+                //await program.modules.dependOn(reqFunc,program);
             },200);
-        } else {
+        } else if (program.modules[reqFunc.name] == undefined) {
             console.log(`DependOn Succes: ${dependOn}`);
             progData[dependOnItem] = {
                 depend : dependOn,
