@@ -1,10 +1,10 @@
-# WebFS
+# WebFast!
 
-WebFS is a lightweight, model-based framework developed by Hybrid Institute. It is designed for individuals who are interested in building no-code/low-code solutions and prefer an easy-to-setup development environment.
+WebFast! is a lightweight, model-based framework developed by Hybrid Institute. It is designed for individuals who are interested in building no-code/low-code solutions and prefer an easy-to-setup development environment.
 
 ## Introduction
 
-WebFS provides a flexible and intuitive platform for creating web applications without the need for extensive coding. It empowers users to leverage a model-based approach, making it accessible to a broader audience, including those with limited coding experience.
+WebFast! provides a flexible and intuitive platform for creating web applications without the need for extensive coding. It empowers users to leverage a model-based approach, making it accessible to a broader audience, including those with limited coding experience.
 
 ## Features
 
@@ -24,13 +24,13 @@ WebFS provides a flexible and intuitive platform for creating web applications w
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/ThePhotoCodeGrapher/WebFS.git
+    git clone https://github.com/ThePhotoCodeGrapher/WebFast!.git
     ```
 
 2. Navigate to the project directory:
 
     ```bash
-    cd WebFS
+    cd WebFast!
     ```
 
 3. Install dependencies:
@@ -57,13 +57,13 @@ WebFS provides a flexible and intuitive platform for creating web applications w
 
 ## Contributing
 
-We welcome contributions from the community. If you'd like to contribute to WebFS, please follow our [contribution guidelines](CONTRIBUTING.md).
+We welcome contributions from the community. If you'd like to contribute to WebFast!, please follow our [contribution guidelines](CONTRIBUTING.md).
 
 ## Modules
 
 ### Generator Module
 
-The `generator` module is an object-based component of WebFS that allows you to extend the functionality based on your specific requirements. This module will be automatically executed, taking into account its dependencies.
+The `generator` module is an object-based component of WebFast! that allows you to extend the functionality based on your specific requirements. This module will be automatically executed, taking into account its dependencies.
 
 #### Dependencies
 
