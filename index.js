@@ -18,6 +18,7 @@ async function set(program) {
 // Program Fetch
 program.modules.dependOn = async function(reqFunc,program,name,callback) {
     console.log(`Depend On Check`);
+   
     // Loop Through dependOn if its not true then check
     for (let dependIndex in reqFunc.dependOn) {
         const dependOn = reqFunc.dependOn[dependIndex];
@@ -33,9 +34,16 @@ program.modules.dependOn = async function(reqFunc,program,name,callback) {
             // Grab object
             let toCheck = split[spl];
             if (objectData[toCheck] == undefined) {
-                await setTimeout(async function(){
-                    await program.modules.dependOn(reqFunc,program,name,callback);
-                },200);
+                if (program.modules[name] != undefined) {
+                    return;
+                } else {
+                    program.modules[name] = {
+                        ts : Date.now()
+                    }
+                    await setTimeout(async function(){
+                        await program.modules.dependOn(reqFunc,program,name,callback);
+                    },200);
+                }
             } else {
                 // New object thing and og next
                 if (split.length-1 != spl) {
@@ -54,7 +62,7 @@ program.modules.dependOn = async function(reqFunc,program,name,callback) {
             // We need to wait and try again untill we can return
             console.log(`DependOn Fail: ${dependOn}`);
             await setTimeout(async function(){
-                //await program.modules.dependOn(reqFunc,program);
+                await program.modules.dependOn(reqFunc,program);
             },200);
         } else if (program.modules[reqFunc.name] == undefined) {
             console.log(`DependOn Succes: ${dependOn}`);
@@ -151,7 +159,7 @@ program.modules.fetch = async function(folder,program) {
                         });
                     break;
                     case `function`:
-                        program = await (require(initPath)(program));
+                        program = await (require(initPath)(program,fileNameWithExtension));
                     break;
                     default:
                         console.error(`Error Missing typeOf item`);

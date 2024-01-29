@@ -1,5 +1,5 @@
 const { MongoClient } = require('mongodb');
-module.exports = function() {
+module.exports = function(db,collection) {
     // Ensure the MongoDB connection string is provided
     if (!process.env.mongo) {
         console.error('MongoDB connection string not provided. Set process.env.mongo.');
@@ -10,8 +10,8 @@ module.exports = function() {
     const uri = process.env.mongo;
 
     // Define the database and collection name
-    const dbName = 'yourDatabaseName';
-    const collectionName = 'yourCollectionName';
+    const dbName = db;
+    const collectionName = collection;
 
     // Define the query you want to perform
     const query = { /* Your query goes here */ };

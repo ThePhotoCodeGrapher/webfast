@@ -1,4 +1,4 @@
-# WebFast!
+# WebFast! **DEV**
 
 WebFast! is a lightweight, model-based framework developed by Hybrid Institute. It is designed for individuals who are interested in building no-code/low-code solutions and prefer an easy-to-setup development environment.
 

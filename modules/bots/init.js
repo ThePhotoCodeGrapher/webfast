@@ -20,9 +20,10 @@ module.exports = {
             // Create module in setModule
             try {
                 // We have set module
-                const runModule = (require(module.path)(program,module));
+                const runModule = await require(module.path)(program,module);
                 setModule[module.name] = runModule;
             } catch (err) {
+                console.error(err);
                 console.error(`Error Setting Module Data`,module.name);
             }
         }
