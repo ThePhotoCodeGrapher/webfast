@@ -1,6 +1,6 @@
 const { readdirSync } = require("fs");
 
-console.log(`EventGO! Program`);
+console.log(`WebFS! Program`);
 let program = {
     ts  :   Date.now(),
     modules : {}

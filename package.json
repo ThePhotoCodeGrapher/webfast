@@ -1,11 +1,11 @@
 {
-  "name": "eventgo",
+  "name": "webfs",
   "version": "0.0.1",
-  "description": "EventGO! Bot Application, including TON mini-apps",
+  "description": "WebFS! Bot Application, including TON mini-apps",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ThePhotoCodeGrapher/WebFS"
+    "url": "https://github.com/ThePhotoCodeGrapher/webfs"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
