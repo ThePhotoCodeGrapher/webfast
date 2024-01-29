@@ -127,11 +127,30 @@ module.exports = async function(program) {
         console.error(`Error Routes`);
     }
 
-
+    program.express.app = app;
     app.listen(port, () => {
         console.log(`Server Listening`,port,basePath);
     });
-    
-    program.express.app = app;
+
+    // For creating adaptive url
+    program.express.url = {
+        adaptive : {
+            get : [],
+            post : []
+        },
+        set : function(requestPath,actionType,callback) {
+            // Callback is for when we run through adpative url
+
+            program.express.url.adaptive[actionType] = app[actionType](requestPath,async (req,res) => {
+                // Process body
+                let run = await callback(req,res,req.body,req.params);
+                return run;
+            });
+            return true;
+        }
+    }
+
+    program.express.setted = true;
+
     return program;
 }

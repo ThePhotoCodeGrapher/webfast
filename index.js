@@ -10,7 +10,8 @@ let program = {
 async function set(program) {
     program.path = await require(`path`);
     program.fs = await require(`fs`);
-    program.uuid = await require(`uuid`);
+    program.uuid = require(`uuid`);
+    program.fetch = require(`fetch`);
     return program;
 }
 
@@ -57,11 +58,40 @@ program.modules.dependOn = async function(reqFunc,program,name,callback) {
             },200);
         } else if (program.modules[reqFunc.name] == undefined) {
             console.log(`DependOn Succes: ${dependOn}`);
+
+            // Loop Through to find where data to set
+            const splitLoop = String(`${fullObjectPath}.${dependOnItem}`).split(`.`);
+            let object;
+            for (let s in splitLoop) {
+                let key = splitLoop[s];
+                try {
+                    if (object == undefined) {
+                        object = eval(key);
+                    } else {
+                        object = object[key];
+                    }
+                    if (s == splitLoop-1) {
+                        // It's end
+                        object = {
+                            depend : dependOn,
+                            state : true,
+                            ts : Date.now()
+                        }
+                    }
+                } catch (err) {
+                    console.error(err);
+                    console.error(`errror boject eval set`);
+                    return setTimeout(async function(){
+                        await program.modules.dependOn(reqFunc,program,name,callback);
+                    },200);
+                }
+            }
+            /*
             progData[dependOnItem] = {
                 depend : dependOn,
                 state : true,
                 ts : Date.now()
-            }
+            } */
 
             // Now include this thing then
             try {
@@ -135,67 +165,70 @@ program.modules.fetch = async function(folder,program) {
     }
 }
 
-program.modules.walkDirectory = async function (directoryPath,callback,forward) {
-    // Read the contents of the current directory
-    const files = await program.fs.readdirSync(directoryPath);
+program.modules.walkDirectory = async function (directoryPath, callback, forward) {
+    try {
+      // Read the contents of the current directory
+      const files = await program.fs.readdirSync(directoryPath);
   
-    let allFiles = [];
-    // Iterate through the files in the directory
-    for (let f in files) {
+      let allFiles = [];
+  
+      // Iterate through the files in the directory
+      for (let f in files) {
         // Construct the full path of the current file or directory
         let file = files[f];
         const fullPath = await program.path.join(directoryPath, file);
-
+  
         // Check if the current item is a directory
         const pathSync = await program.fs.statSync(fullPath);
         const isDirectoryPath = await pathSync.isDirectory();
         const fileExtension = await program.path.extname(fullPath);
-
+  
         // Get the filename without the extension
         const fileName = await program.path.basename(fullPath, fileExtension);
+  
         if (isDirectoryPath) {
-        // If it's a directory, recursively walk through it
-            let pushData = await program.modules.walkDirectory(fullPath,callback,fileName);
-            await allFiles.push(pushData);
+          // If it's a directory, recursively walk through it
+          let pushData = await program.modules.walkDirectory(fullPath, callback, fileName);
+          if (pushData.length !== 0) {
+            allFiles = allFiles.concat(pushData); // Concatenate arrays instead of pushing an array
+          }
         } else {
-            // If it's a file, print the path
-            // Get the file extension
-
-            console.log('File Extension:', fileExtension);
-            console.log('File Name:', fileName);
-
-            // Make Key from fileName extension
-            const fileData = {
-                extension : fileExtension,
-                name : fileName,
-                path : fullPath,
-                sub : []
-            }
-            
-            if (forward != undefined) {
-                // PUsh it to sub
-                fileData.sub.push(forward);
-                return fileData;
-            } else {
-
-                await allFiles.push(fileData);
-            }
+          // If it's a file, print the path
+          console.log('File Extension:', fileExtension);
+          console.log('File Name:', fileName);
+  
+          // Make Key from fileName extension
+          const fileData = {
+            extension: fileExtension,
+            name: fileName,
+            path: fullPath,
+            sub: [],
+          };
+  
+          if (forward !== undefined) {
+            // Push it to sub
+            fileData.sub.push(forward);
+          } else {
+            allFiles.push(fileData);
+          }
         }
-    }
-
-
-
-    if (forward != undefined) {
+      }
+  
+      if (forward !== undefined) {
         // Return data
-        
-    }
-    
-    if (callback && forward == undefined) {
-        await callback(allFiles);
-    } else {
         return allFiles;
+      }
+  
+      if (callback && forward === undefined) {
+        await callback(allFiles);
+      } else {
+        return allFiles;
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
     }
-  }
+  };
+  
   
 
 // Run program fetch
