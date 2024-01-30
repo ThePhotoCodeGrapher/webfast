@@ -65,17 +65,24 @@ module.exports = async function(program,folder) {
                                 console.log('Command:', command);
                                 console.log('Variables:', variables);
                                 // Define a regular expression pattern to match the different parts
-                                const regexPattern = /^([a-z]+)-([0-9a-f\-]+)-([a-z]+)$/;
+                                // Define the regex pattern to extract information
+                                // Let's split up
+                                let match = [];
 
-                                // Use the regular expression to match the parts
-                                let match;
-                                if (variables != undefined) {
-                                    match = variables.match(regexPattern);
+                                let splitVariables = variables.split(`-`);
+
+                                if (splitVariables.length > 4) {
+                                    match[0] = splitVariables[0];
+                                    if (splitVariables.length >= 5) {
+                                        match[1] = splitVariables[splitVariables.length-1];
+                                        let uuid = variables.replace(`${match[0]}-`,``).replace(`-${match[1]}`,``);;
+                                        match[2] = uuid;
+                                    }
                                 }
                                 
                                 if (match) {
                                     // Extract the parts
-                                    const action = match[3];
+                                    const action = match[0];
                                     const uuid = match[2];
                                     const subFunction = match[1];
 
@@ -84,7 +91,13 @@ module.exports = async function(program,folder) {
                                     console.log('Sub-Function:', subFunction);
 
                                     // It's something to do check if we can find this in applications
-                                    
+                                    try {
+                                        console.log(`Run Sub Function`);
+                                        await program.modules.telegram.functions[action](program,key,action,uuid,subFunction,middleValue);
+                                    } catch (err) {
+                                        console.error(err);
+                                        console.error(`Error Sub Function`);
+                                    }
 
                                 } else {
                                     console.log('String does not match the expected pattern.');
