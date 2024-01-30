@@ -1,189 +1,161 @@
-module.exports = async function(program) {
+module.exports = async function (program) {
     console.log(`Starting UP Express`);
     program.express = {
-        ts : Date.now()
-    }
-
-    // Express and cors
+      ts: Date.now(),
+    };
+  
     const express = require('express');
     const cors = require('cors');
     const bodyParser = require('body-parser');
     const port = 1221;
     const basePath = `/api`;
-    
-    // Run Express
+  
     const app = express();
-
-    // Setup Cors
+  
     const corsOptions = {
-        origin: '*', // or specify your allowed origins
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        credentials: true,
-        optionsSuccessStatus: 204,
+      origin: '*',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      credentials: true,
+      optionsSuccessStatus: 204,
     };
-      
-    // Use Core Options
+  
     app.use(cors(corsOptions));
-
-    // Set View Engine
-    app.set('view engine', 'ejs');
-
-    // Enable bodyparser
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
-
-    // Let's go through the folder routes and subdirectory
-    const routesPath = program.path.join(__dirname,`routes`);
-
+    app.set('view engine', 'ejs');
+  
+    const routesPath = program.path.join(__dirname, `routes`);
     let exprs = {};
-
+  
     try {
-        // Get routes for route path and setup the routes for express
-        let routesData = await program.modules.walkDirectory(routesPath);
-
-        // Loop Through routes
-        for (let rI in routesData) {
-            // Get the current route
-            let route = routesData[rI];
-            //console.log(`Route : `,route.path);
-
-            let routePath = `${basePath}/${route.name}`
-            // Loop Through sub and create path with basePath
-           
-            console.log(`Set Route Name`);
-
-            // Check to split name
-            const split = route.name.split(`.`);
-            route.type = `get`;
-            if (split.length > 1) {
-                // we have a get or post
-                route.type = split[split.length-1];
-                route.name = split[0];
+      let routesData = await program.modules.walkDirectory(routesPath);
+  
+      for (let routeData of routesData) {
+        let routePath = `${basePath}/${routeData.name}`;
+  
+        const split = routeData.name.split('.');
+        routeData.type = split.length > 1 ? split[split.length - 1] : 'get';
+        routeData.name = split.length > 1 ? split[0] : routeData.name;
+  
+        const routeID = program.uuid.v4();
+        routeData.tempID = routeID;
+  
+        try {
+          const stats = await program.fs.statSync(routeData.path);
+          const isDirectory = stats.isDirectory();
+  
+          if (isDirectory) {
+            for (let subData of routeData.sub) {
+              if (subData !== undefined) {
+                const routeName = subData.name.replace('.get', '').replace('.post', '');
+                const subDataSplit = subData.path.split('.');
+                const type = subDataSplit[subDataSplit.length - 2];
+  
+                subData.name = routeName;
+                delete subData.sub;
+                subData.type = type;
+  
+                subData.func = require(subData.path);
+                exprs[routePath + '/' + routeName] = subData;
+              }
             }
-
-            // FUll Route
-            //routePath = `${routePath}/${route.name}`;
-
-            // Create Route UUID for easy findable
-            const routeID = program.uuid.v4();
-
-            // Setup ID
-            route.tempID = routeID;
-
-            // Setup the function
-            try {
-                const pathSync = await program.fs.statSync(route.path);
-                const isDirectoryPath = await pathSync.isDirectory();
-                const fileExtension = program.path.extname(route.path);
-                console.log(`If it's directory or not`);
-                
-                // Check if directory 
-                if (isDirectoryPath) {
-                    console.log(`It's directoyr`);
-                    // Create routes now
-                    for (let s in route.sub) { 
-                        const subData =  route.sub[rI];
-                        if (subData != undefined) {
-                            const routeName = subData.name.replace(`.get`,``).replace(`.post`,``);
-                            routePath = `${routePath}/${routeName}`
-
-                            // Create type
-                            const subDataSplit = subData.name.split(`.`);
-                            const type = subDataSplit[subDataSplit.length-1];
-
-                            subData.name = routeName;
-                            delete subData.sub;
-                            subData.type = type;
-
-                            // Create func
-                            subData.func = require(subData.path);
-                            // Set route
-                            exprs[routePath] = subData;
-                        }
-                    }
-
-                    
-                } else {
-                    route.func = require(route.path);
-                }
-            } catch(err) {
-                console.error(`Error Route Func`,routePath);
-                console.error(err);
-            }
-
-            // Save route for path
-            route.webwalk = 0;
-
-            console.log(`Setting Up Route`);
+          } else {
+            routeData.func = require(routeData.path);
+            exprs[routePath] = routeData;
+          }
+        } catch (err) {
+          console.error(`Error Route Func`, routePath);
+          console.error(err);
         }
-
-        // Setted Up Routes
-        program.express.routes = exprs;
-
-        // Now we can setup the real shizzle for the post and get situation
-        //req,res,program
-        for (let route in exprs) {
-            // Setup route
-            let routeData = exprs[route];
-            console.log(`Setup Route`,route);
-            let state = false;
-            
+  
+        routeData.webwalk = 0;
+      }
+  
+      program.express.routes = exprs;
+  
+      for (let route in exprs) {
+        let routeData = exprs[route];
+        let state = false;
+  
+        try {
+          app[routeData.type](route, async (req, res) => {
             try {
-                // This is where the magic happens when we receive an incomming request it will 
-                // route it through the dynamice route folder
-                app[routeData.type](route,async (req,res) => {
-                    try {
-                        // Count walkthrough
-                        exprs[route].webwalk++;
+              exprs[route].webwalk++;
 
-                        // Now passthrough func
-                        await routeData.func(program,req,res,route);
-                    } catch (err) {
-                        console.error(`Error With Route:`,route);
-                        console.error(err);
-                    }
-                });
-                state = true;
+              // Get body
+              const requestBody = req.body;
+              const reqParams = req.params;
+
+              await routeData.func(program, req, res, route,requestBody,reqParams);
             } catch (err) {
-                console.error(err);
-                console.error(`Error Setting Up Route`);
+              console.error(`Error With Route:`, route);
+              console.error(err);
+            }
+          });
+          state = true;
+        } catch (err) {
+          console.error(err);
+          console.error(`Error Setting Up Route`);
+        }
+  
+        exprs[route].state = state;
+      }
+  
+      console.log(`Routes are set up successfully`);
+    } catch (err) {
+      console.error(err);
+      console.error(`Error Setting Up Routes`);
+    }
+  
+    program.express.app = app;
+
+    // Let app listen for content
+    app.get(`/app/content/:type/:file`,async (req,res) => {
+        console.log(`Content Get`);
+        // Try To get file from content folder
+        try {
+            const filePath = program.path.join(__dirname,`..`,`..`,`app`,`content`,req.params.type,req.params.file);
+            let contentFolder = filePath;
+
+            // Check if minify at the end
+            const fileName = req.params.file;
+            const isMinified = /-min\.js$/.test(fileName);
+
+            if (isMinified) {
+                console.log(`${fileName} ends with -min.js`);
+                const toRequestFile = req.params.file.replace(`-min.js`,`.js`);
+                contentFolder = program.path.join(__dirname,`..`,`..`,`app`,`content`,req.params.type,toRequestFile);
+            } else {
+                console.log(`${fileName} does not end with -min.js`);
             }
 
-            // Set state
-            exprs[route].state = state;
+            res.sendFile(contentFolder);
+        } catch (err) {
+            console.error(err);
+            console.error(`Error Getting : ${req.params.type}`,req.params.file);
         }
+    })
 
-        console.log(`We have routes`);
-    } catch (err) {
-        console.error(err);
-        console.error(`Error Routes`);
-    }
-
-    program.express.app = app;
     app.listen(port, () => {
-        console.log(`Server Listening`,port,basePath);
+      console.log(`Server Listening`, port, basePath);
     });
-
-    // For creating adaptive url
+  
     program.express.url = {
-        adaptive : {
-            get : [],
-            post : []
-        },
-        set : function(requestPath,actionType,callback) {
-            // Callback is for when we run through adpative url
-
-            program.express.url.adaptive[actionType] = app[actionType](requestPath,async (req,res) => {
-                // Process body
-                let run = await callback(req,res,req.body,req.params);
-                
-                return run;
-            });
-            return true;
-        }
-    }
-
+      adaptive: {
+        get: [],
+        post: [],
+      },
+      set: function (requestPath, actionType, callback) {
+        program.express.url.adaptive[actionType] = app[actionType](requestPath, async (req, res) => {
+          let run = await callback(req, res, req.body, req.params);
+          return run;
+        });
+        return true;
+      },
+    };
+  
     program.express.setted = true;
-
+  
     return program;
-}
+  };
+  
