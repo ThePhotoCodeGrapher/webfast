@@ -1,11 +1,11 @@
 {
   "name": "webfast",
-  "version": "0.0.8",
-  "description": "WebFast!! Bot Application, including TON mini-apps",
+  "version": "0.0.9",
+  "description": "WebFast! Bot Application, including TON mini-apps",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ThePhotoCodeGrapher/WebFast!"
+    "url": "https://github.com/ThePhotoCodeGrapher/webfast"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,7 +16,13 @@
     "mini",
     "app",
     "ton",
-    "telegram"
+    "telegram",
+    "fast",
+    "framework",
+    "lowcode",
+    "kaigartner",
+    "bots",
+    "generator"
   ],
   "author": "Kai Gartner",
   "license": "ISC",

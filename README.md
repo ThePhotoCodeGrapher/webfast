@@ -24,7 +24,7 @@ WebFast! provides a flexible and intuitive platform for creating web application
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/ThePhotoCodeGrapher/WebFast!.git
+    git clone https://github.com/ThePhotoCodeGrapher/webfast.git
     ```
 
 2. Navigate to the project directory:
