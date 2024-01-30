@@ -20,8 +20,19 @@ module.exports = {
             // Create module in setModule
             try {
                 // We have set module
-                const runModule = await require(module.path)(program,module);
-                setModule[module.name] = runModule;
+                const pathSync = await program.fs.statSync(module.path);
+                const isDirectoryPath = await pathSync.isDirectory();
+                const fileExtension = program.path.extname(module.path);
+
+                // Check if directory
+                if (isDirectoryPath) {
+                    // It's directory so don't do anything yet
+                    console.log(`It's Directory init bots`);
+                } else {
+                    const runModule = await require(module.path)(program,module);
+                    setModule[module.name] = runModule;
+                }
+                
             } catch (err) {
                 console.error(err);
                 console.error(`Error Setting Module Data`,module.name);

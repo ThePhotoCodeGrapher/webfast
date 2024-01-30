@@ -230,8 +230,18 @@ module.exports = async function(program,folder) {
 
         // Try to load it
         try {
-            telegram.functions[key] = require(module.path);
-            console.log(`Having The Module`,module);
+            const pathSync = await program.fs.statSync(module.path);
+            const isDirectoryPath = await pathSync.isDirectory();
+            const fileExtension = program.path.extname(module.path);
+
+            // Check if directory
+            if (isDirectoryPath) {
+                // It's directory so don't do anything yet
+                console.log(`It's Directory fo something`);
+            } else {
+                telegram.functions[key] = require(module.path);
+                console.log(`Having The Module`,module);
+            }
         } catch (err) {
             console.error(err);
             console.error(`Error Setting Up Telegram Module`);

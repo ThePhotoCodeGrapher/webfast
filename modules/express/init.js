@@ -47,11 +47,10 @@ module.exports = async function(program) {
             let route = routesData[rI];
             //console.log(`Route : `,route.path);
 
-            let routePath = `${basePath}`
+            let routePath = `${basePath}/${route.name}`
             // Loop Through sub and create path with basePath
-            for (let s in route.sub) {
-                routePath = `${routePath}/${route.sub[s]}`
-            }
+           
+            console.log(`Set Route Name`);
 
             // Check to split name
             const split = route.name.split(`.`);
@@ -63,7 +62,7 @@ module.exports = async function(program) {
             }
 
             // FUll Route
-            routePath = `${routePath}/${route.name}`;
+            //routePath = `${routePath}/${route.name}`;
 
             // Create Route UUID for easy findable
             const routeID = program.uuid.v4();
@@ -73,7 +72,40 @@ module.exports = async function(program) {
 
             // Setup the function
             try {
-                route.func = require(route.path);
+                const pathSync = await program.fs.statSync(route.path);
+                const isDirectoryPath = await pathSync.isDirectory();
+                const fileExtension = program.path.extname(route.path);
+                console.log(`If it's directory or not`);
+                
+                // Check if directory 
+                if (isDirectoryPath) {
+                    console.log(`It's directoyr`);
+                    // Create routes now
+                    for (let s in route.sub) { 
+                        const subData =  route.sub[rI];
+                        if (subData != undefined) {
+                            const routeName = subData.name.replace(`.get`,``).replace(`.post`,``);
+                            routePath = `${routePath}/${routeName}`
+
+                            // Create type
+                            const subDataSplit = subData.name.split(`.`);
+                            const type = subDataSplit[subDataSplit.length-1];
+
+                            subData.name = routeName;
+                            delete subData.sub;
+                            subData.type = type;
+
+                            // Create func
+                            subData.func = require(subData.path);
+                            // Set route
+                            exprs[routePath] = subData;
+                        }
+                    }
+
+                    
+                } else {
+                    route.func = require(route.path);
+                }
             } catch(err) {
                 console.error(`Error Route Func`,routePath);
                 console.error(err);
@@ -81,7 +113,6 @@ module.exports = async function(program) {
 
             // Save route for path
             route.webwalk = 0;
-            exprs[routePath] = route;
 
             console.log(`Setting Up Route`);
         }
@@ -96,6 +127,7 @@ module.exports = async function(program) {
             let routeData = exprs[route];
             console.log(`Setup Route`,route);
             let state = false;
+            
             try {
                 // This is where the magic happens when we receive an incomming request it will 
                 // route it through the dynamice route folder

@@ -3,7 +3,8 @@ const { readdirSync } = require("fs");
 console.log(`WebFast!! Program`);
 let program = {
     ts  :   Date.now(),
-    modules : {}
+    modules : {},
+    tmp : {}
 }
 
 // Setup The Requirements
@@ -154,7 +155,7 @@ program.modules.fetch = async function(folder,program) {
                     case `object`:
                         // It's a object so check for dependend things etc.
                         console.log(`Depending object`);
-                        await program.modules.dependOn(reqFunc,program,fileNameWithoutExtension,function(program,name){
+                        return await program.modules.dependOn(reqFunc,program,fileNameWithoutExtension,function(program,name){
                             console.log(`Setup `,name)
                         });
                     break;
@@ -173,69 +174,69 @@ program.modules.fetch = async function(folder,program) {
     }
 }
 
-program.modules.walkDirectory = async function (directoryPath, callback, forward) {
+// Create tmp file path
+program.modules.walkDirectory = async function (directoryPath, callback, forward, parentFileData) {
+    let allFiles = [];
     try {
       // Read the contents of the current directory
       const files = await program.fs.readdirSync(directoryPath);
   
-      let allFiles = [];
-  
       // Iterate through the files in the directory
-      for (let f in files) {
+      for (const file of files) {
         // Construct the full path of the current file or directory
-        let file = files[f];
-        const fullPath = await program.path.join(directoryPath, file);
+        const fullPath = program.path.join(directoryPath, file);
   
         // Check if the current item is a directory
         const pathSync = await program.fs.statSync(fullPath);
         const isDirectoryPath = await pathSync.isDirectory();
-        const fileExtension = await program.path.extname(fullPath);
+        const fileExtension = program.path.extname(fullPath);
   
         // Get the filename without the extension
-        const fileName = await program.path.basename(fullPath, fileExtension);
+        const fileName = program.path.basename(fullPath, fileExtension);
+  
+        // Create a new fileData object for each file or directory
+        const currentFileData = {
+          extension: fileExtension,
+          name: fileName,
+          path: fullPath,
+          sub: [],
+        };
   
         if (isDirectoryPath) {
           // If it's a directory, recursively walk through it
-          let pushData = await program.modules.walkDirectory(fullPath, callback, fileName);
+          let pushData = await program.modules.walkDirectory(fullPath, callback, fileName, currentFileData);
           if (pushData.length !== 0) {
-            allFiles = allFiles.concat(pushData); // Concatenate arrays instead of pushing an array
+            // Concatenate arrays instead of pushing an array
+            allFiles.push(currentFileData);
+            allFiles = allFiles.concat(pushData);
+          } else {
+            allFiles.push(currentFileData);
           }
         } else {
           // If it's a file, print the path
           console.log('File Extension:', fileExtension);
           console.log('File Name:', fileName);
   
-          // Make Key from fileName extension
-          const fileData = {
-            extension: fileExtension,
-            name: fileName,
-            path: fullPath,
-            sub: [],
-          };
-  
           if (forward !== undefined) {
             // Push it to sub
-            fileData.sub.push(forward);
+            parentFileData.sub.push(currentFileData);
           } else {
-            allFiles.push(fileData);
+            allFiles.push(currentFileData);
           }
         }
       }
   
-      if (forward !== undefined) {
-        // Return data
-        return allFiles;
-      }
-  
       if (callback && forward === undefined) {
         await callback(allFiles);
-      } else {
-        return allFiles;
       }
+  
+      return allFiles;
     } catch (error) {
       console.error('Error:', error.message);
     }
   };
+  
+
   
   
 
