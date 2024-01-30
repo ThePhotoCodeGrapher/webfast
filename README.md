@@ -85,6 +85,12 @@ module.exports = {
 }
 
 ```
+## Important!
+
+The folder [/app] is for your custom project, your custom github and code but can be used in combination with Webfast. Don't wory to contribute.
+```
+
+```
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
