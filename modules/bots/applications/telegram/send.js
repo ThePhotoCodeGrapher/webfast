@@ -1,7 +1,24 @@
-module.exports = async function(program,message,id) {
+module.exports = async function(program,message,id,buttons) {
     console.log(`Telegram Send`);
     // Create Request for send
     const telegramURL = `https://api.telegram.org/bot${process.env.telegram}/sendMessage`;
+
+    // Check if buttons is send as []
+    let options;
+    if (buttons != undefined) {
+        console.log(`Loop Through Buttons`);
+        const keyboard = {
+            inline_keyboard: buttons,
+    
+            resize_keyboard: true,
+            one_time_keyboard: true
+        };
+        
+        options = {
+            reply_markup: JSON.stringify(keyboard)
+        };
+    }
+
 
     const body = {
         text: message,
@@ -10,6 +27,11 @@ module.exports = async function(program,message,id) {
         reply_to_message_id: null,
         chat_id : id,
         parse_mode : 'HTML'
+    }
+
+    // If options is there add as
+    if (options != undefined) {
+        body.reply_markup = options.reply_markup;
     }
 
     const madeRequest = await program.modules.request.post(program,telegramURL,body)

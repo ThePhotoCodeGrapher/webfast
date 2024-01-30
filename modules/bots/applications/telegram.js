@@ -143,7 +143,12 @@ module.exports = async function(program,folder) {
                                 } catch (err) {
                                     //console.error(err);
                                     //console.error(`Error For Telegram Function`);
-                                    await program.modules.telegram.functions.send(program,`${command}`,middleValue.chat.id);
+                                    await program.modules.telegram.functions.send(program,`${command}`,middleValue.chat.id,[
+                                        [
+                                            { text: 'EventGO!',  web_app : { url : 'https://cloud.eventgo.today/events/list'}},
+                                            { text: 'Create Event', callback_data: 'create_event' },
+                                        ]
+                                    ]);
                                 }
 
                                 
