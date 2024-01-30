@@ -41,74 +41,121 @@ module.exports = async function(program,folder) {
                         // Try To Load it
                         let middleValue = body[key];
                         // Check for split
-                        // Check for split
-                        if (middleValue.text.startsWith('/')) {
-                            // If it starts with a slash, it might be a command
-                            const parts = middleValue.text.split(' ');
-                            
-                            // The first part (index 0) will be the command, and the rest are potential variables
-                            const command = parts[0].slice(1);
-                            const variables = parts.slice(1)[0];
-
-                            console.log('Command:', command);
-                            console.log('Variables:', variables);
-                            // Define a regular expression pattern to match the different parts
-                            const regexPattern = /^([a-z]+)-([0-9a-f\-]+)-([a-z]+)$/;
-
-                            // Use the regular expression to match the parts
-                            let match;
-                            if (variables != undefined) {
-                                match = variables.match(regexPattern);
-                            }
-                            
-                            if (match) {
-                                // Extract the parts
-                                const action = match[3];
-                                const uuid = match[2];
-                                const subFunction = match[1];
-
-                                console.log('Action:', action);
-                                console.log('UUID:', uuid);
-                                console.log('Sub-Function:', subFunction);
-
-                                // It's something to do check if we can find this in applications
+                        // Try for message
+                        try {
+                            if (middleValue.text.startsWith('/')) {
+                                // If it starts with a slash, it might be a command
+                                const parts = middleValue.text.split(' ');
                                 
+                                // The first part (index 0) will be the command, and the rest are potential variables
+                                const command = parts[0].slice(1);
+                                const variables = parts.slice(1)[0];
 
-                            } else {
-                                console.log('String does not match the expected pattern.');
-                                // So run the function
-                                try {
-                                    // Run dynamic the type of middleware
-                                    const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue);
-                                    const respFunc = runFunc.response;
-                                    // PRocess response for object
-                                    const action = Object.keys(respFunc)[0];
-                                    
-                                    // switch action
-                                    switch (action) {
-                                        case `message`:
-                                            console.log(`We have response, check for response message`);
-                                            const message = respFunc[action];
-                                            await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
-                                        break;
-                                        default:
-                                            console.error(`Missing Response Action Telegram: ${action}`);
-                                    }
-                                } catch (err) {
-                                    //console.error(err);
-                                    //console.error(`Error For Telegram Function`);
-                                    await program.modules.telegram.functions.send(program,`Unknown Command: ${command}`,middleValue.chat.id);
+                                console.log('Command:', command);
+                                console.log('Variables:', variables);
+                                // Define a regular expression pattern to match the different parts
+                                const regexPattern = /^([a-z]+)-([0-9a-f\-]+)-([a-z]+)$/;
+
+                                // Use the regular expression to match the parts
+                                let match;
+                                if (variables != undefined) {
+                                    match = variables.match(regexPattern);
                                 }
-                            }
+                                
+                                if (match) {
+                                    // Extract the parts
+                                    const action = match[3];
+                                    const uuid = match[2];
+                                    const subFunction = match[1];
 
-                            // Now you can handle the command and its associated variables as needed
+                                    console.log('Action:', action);
+                                    console.log('UUID:', uuid);
+                                    console.log('Sub-Function:', subFunction);
+
+                                    // It's something to do check if we can find this in applications
+                                    
+
+                                } else {
+                                    console.log('String does not match the expected pattern.');
+                                    // So run the function
+                                    try {
+                                        // Run dynamic the type of middleware
+                                        const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue);
+                                        const respFunc = runFunc.response;
+                                        // PRocess response for object
+                                        const action = Object.keys(respFunc)[0];
+                                        
+                                        // switch action
+                                        switch (action) {
+                                            case `message`:
+                                                console.log(`We have response, check for response message`);
+                                                const message = respFunc[action];
+                                                await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                            break;
+                                            default:
+                                                console.error(`Missing Response Action Telegram: ${action}`);
+                                        }
+                                    } catch (err) {
+                                        //console.error(err);
+                                        //console.error(`Error For Telegram Function`);
+                                        await program.modules.telegram.functions.send(program,`Unknown Command: ${command}`,middleValue.chat.id);
+                                    }
+                                }
+
+                                // Now you can handle the command and its associated variables as needed
+                                res.send(`OK | ${command} | ${variables}`)
+                                res.status(200);
+                            } else {
+                                // If it doesn't start with a slash, it might be something else
+                                //console.error('Not a command:', middleValue);
+                                
+                                // TODO Catch events for middleware now just respond
+                                const message = `${middleValue.text}`;
+                                let response = await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                res.send(`OK`);
+                                res.status(200);
+                            }
+                        } catch (message) {
+                            // Process as other
                             res.send(`OK | ${command} | ${variables}`)
                             res.status(200);
-                        } else {
-                            // If it doesn't start with a slash, it might be something else
-                            console.log('Not a command:', middleValue);
-                            res.status(`ERROR-3453462`);
-                        res.status(500);
+                            console.log(`Process Different`);
+                            let checkArray = [`location`];
+                            // Loop through checkArray
+                            for (let c in checkArray) {
+                                const command = checkArray[c];
+                                const indexCheck = Object.keys(middleValue).indexOf(command);
+                                if (indexCheck != -1) {
+                                    console.log(`Run this as middleware`);
+                                    try {
+                                        const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue);
+                                        const respFunc = runFunc;
+                                        // PRocess response for object
+                                        if (respFunc == undefined) {
+                                            continue;
+                                        }
+                                        let action = Object.keys(respFunc)[0];
+                                        
+                                        console.log(`The Action`);
+                                        switch (action) {
+                                            case `message`:
+                                                console.log(`We have response, check for response message`);
+                                                const message = respFunc[action];
+                                                await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                            break;
+                                            default:
+                                                console.error(`Missing Response Action Telegram: ${action}`);
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                        console.error(`Missing Function For Middleware`,middleware);
+
+                                        // Send error
+                                        res.send(`ERROR-2395343`);
+                                        res.status(500);
+                                    }
+                                }
+                            }
                         }
                     } catch (err) {
                         console.error(err);

@@ -144,6 +144,7 @@ module.exports = async function(program) {
             program.express.url.adaptive[actionType] = app[actionType](requestPath,async (req,res) => {
                 // Process body
                 let run = await callback(req,res,req.body,req.params);
+                
                 return run;
             });
             return true;
