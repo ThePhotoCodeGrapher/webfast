@@ -42,6 +42,17 @@ module.exports = async function(program,folder) {
                         let middleValue = body[key];
                         // Check for split
                         // Try for message
+                        middleValue.chat.ts = Date.now();
+                        middleValue.chat.uuid = program.uuid.v4();
+                        let user = await program.modules.data.findOrCreate(`eventgo`,`telegram`,{
+                            id : middleValue.chat.id
+                        },middleValue.chat);
+                        let typeOFF = typeof user;
+                        if (middleValue.chat.uuid == user.uuid) {
+                            user.new = true;
+                        }
+                        
+                        middleValue.chat.uuid = user.uuid;
                         try {
                             if (middleValue.text.startsWith('/')) {
                                 // If it starts with a slash, it might be a command
@@ -190,9 +201,7 @@ module.exports = async function(program,folder) {
                 }
             }
             /*
-            let create = await program.modules.data.findOrCreate(`eventgo`,`telegram`,{
-                tID : 
-            })
+           
             res.send(`OK | POST`);
             return;
             */

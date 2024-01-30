@@ -16,7 +16,7 @@ module.exports = async function(db, collection, condition, dataToCreate) {
 
     async function main() {
         // Create a new MongoClient
-        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        const client = new MongoClient(uri);
 
         try {
             // Connect to the MongoDB server
@@ -41,9 +41,10 @@ module.exports = async function(db, collection, condition, dataToCreate) {
                 console.log('Document not found. Creating a new one.');
                 const result = await collection.insertOne(dataToCreate);
 
-                if (result.insertedCount === 1) {
-                    console.log('New document created:', result.ops[0]);
-                    return result.ops[0];
+                if (result.acknowledged === true) {
+                    console.log('New document created:', result.insertedId);
+                    const existingDocument = await collection.findOne(condition);
+                    return existingDocument;
                 } else {
                     console.error('Failed to create a new document.');
                     return null;
