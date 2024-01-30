@@ -111,7 +111,31 @@ module.exports = async function(program,folder) {
                                 
                                 // TODO Catch events for middleware now just respond
                                 const message = `${middleValue.text}`;
-                                let response = await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                const command = message;
+                                try {
+                                    // Run dynamic the type of middleware
+                                    const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue);
+                                    const respFunc = runFunc.response;
+                                    // PRocess response for object
+                                    const action = Object.keys(respFunc)[0];
+                                    
+                                    // switch action
+                                    switch (action) {
+                                        case `message`:
+                                            console.log(`We have response, check for response message`);
+                                            const message = respFunc[action];
+                                            await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                        break;
+                                        default:
+                                            console.error(`Missing Response Action Telegram: ${action}`);
+                                    }
+                                } catch (err) {
+                                    //console.error(err);
+                                    //console.error(`Error For Telegram Function`);
+                                    await program.modules.telegram.functions.send(program,`${command}`,middleValue.chat.id);
+                                }
+
+                                
                                 res.send(`OK`);
                                 res.status(200);
                             }

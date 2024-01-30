@@ -1,8 +1,14 @@
 module.exports = async function(req,res,body,params,command,middleValue) {
     console.log(`Location Telegram Function`);
     // We have the start function
-    
+    let locSendMessage = `No Location Service Functions yet`;
+    if (middleValue.location != undefined) {
+        locSendMessage = `Thank you for sending your location\n ${middleValue.location.longitude}\n${middleValue.location.latitude}`;
+    }
     return {
-        message : `Thank you for sending your location\n ${middleValue.location.longitude}\n${middleValue.location.latitude}`   
+        message : locSendMessage,
+        response : {
+            message : locSendMessage
+        }
     }
 }
