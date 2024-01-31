@@ -110,6 +110,18 @@ module.exports = async function (program) {
     program.express.app = app;
 
     // Let app listen for content
+    app.get(`/app/content/ton/manifest.json`,async (req,res) => {
+      // Let's create a json
+      const manifest = {
+        url: process.env.url,
+        name: process.env.name,
+        iconUrl: process.env.image
+      };
+    
+      res.setHeader('Content-Type', 'application/json');
+      res.json(manifest);
+    });
+
     app.get(`/app/content/:type/:file`,async (req,res) => {
         console.log(`Content Get`);
         // Try To get file from content folder
