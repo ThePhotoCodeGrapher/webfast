@@ -8,29 +8,17 @@
         "match"    :   {
             "data"  :   [{
                 "response"  :   "anwser text",
-                "function"      :   "program.modules.bots.scripts.function",
-                "reply_markup"      :  {
-                    "inline_keyboard": [[
-                        {
-                            "text": "A",
-                            "callback_data": "A1"            
-                        }, 
-                        {
-                            "text": "B",
-                            "callback_data": "C1"            
-                        }]
-                    ]
-                },
+                "function"  :   "program.modules.bots.scripts.function.response",
                 "next"      :   "nextFunc"
             },{
                 "response"  :   "other",
-                "function"  :   "program.modules.bots.scripts.function",
+                "function"  :   "program.modules.bots.scripts.function.response",
                 "next"      :   "nextFunc"
             }]
         },
         "fail"  :   {
             "response"  :   "start",
-            "function"  :   "program.modules.bots.scripts.function",
+            "function"  :   "program.modules.bots.scripts.function.response",
             "next"      :   "failResponse"
         }
     }

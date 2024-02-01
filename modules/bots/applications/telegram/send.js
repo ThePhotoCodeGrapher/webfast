@@ -44,6 +44,8 @@ module.exports = async function(program,message,id,buttons) {
             delete body.reply_to_message_id;
             telegramURL = `${telegramURL}/sendPhoto`;
         }
+    } else {
+        telegramURL = `${telegramURL}/sendMessage`;
     }
 
     // If options is there add as

@@ -7,14 +7,13 @@ module.exports = {
         this.line[id] = data;
         return this.line[id];
     },
-    get : function(id) {
+    get : function(id,program) {
         console.log(`Que Get Telegram`);
         // Check if in que line
-        let indexPart = Object.keys(this.line).indexOf(id);
-        if (indexPart == -1) {
+        if (program.modules.telegram.functions.que.line[id] == undefined) {
             return false;
         } else {
-            let lineData = this.line[indexPart];
+            let lineData = program.modules.telegram.functions.que.line[id];
             return lineData;
         }
     },
@@ -31,7 +30,7 @@ module.exports = {
 
             let scriptStart = `start`;
             // It's new
-            if (program.modules.telegram.script.int[command] == undefined) {
+            if (program.modules.telegram.script.int[command] == undefined && program.modules.telegram.functions.que.line[chatID] == undefined) {
                 // Send message we don't know
                 
                 return false;
@@ -42,11 +41,19 @@ module.exports = {
 
             let current;
 
+            let theUUID = program.uuid.v4();
             if (program.modules.telegram.functions.que.line[chatID] != undefined) {
                 // It's original que
                 // Process response
                 console.log(`It's a process`)
                 current = program.modules.telegram.functions.que.line[chatID];
+                theUUID = current.uuid;
+
+                // Check what to do next first of all save anwser
+                const question = current.script[current.process];
+                const anwser = middleValue;
+                
+                console.log(`We have question anwser`);
             } else {
                 // Create que line
                 let setData = {
@@ -54,7 +61,8 @@ module.exports = {
                     action : command,
                     process : scriptStart,
                     script : script,
-                    anwsers : {}
+                    anwsers : {},
+                    uuid : theUUID
                 }
                 program.modules.telegram.functions.que.line[chatID] = setData;
                 current = setData;
@@ -94,11 +102,16 @@ module.exports = {
             // Check if text
             await program.modules.telegram.functions.send(program,toSend,middleValue.chat.id);
 
+            // set que uuid
             program.modules.telegram.functions.que.line[chatID] = current;
+            
             console.log(`We have script data`);
+
+            return current;
         } catch (err) {
             console.error(err);
             console.error(`Error with que something`);
+            return false;
         }
 
         // Do all the things that we need to do in the run
