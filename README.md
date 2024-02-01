@@ -84,11 +84,29 @@ module.exports = {
     }
 }
 
-```
-## Important!
+## Important Note on Including WebFast
 
-The folder [/app] is for your custom project, your custom github and code but can be used in combination with Webfast. Don't wory to contribute.
+When integrating WebFast into your project, consider the following instructions:
+
+```javascript
+// If you want to set up your own paths, add "paths: true" when requiring WebFast. 
+// This will prompt WebFast to look for specific folders within your project directory.
+
+const program = require('webfast')({
+    paths: true,
+    path: __dirname
+});
 ```
+In this configuration:
+
+The paths: true option instructs WebFast to search for specific folders within the project directory.
+
+The path: __dirname parameter sets the base directory for WebFast, where it will look for the following essential folders:
+
+bots
+ejs
+routes
+Within these folders, you can establish a dynamic setup, as exemplified in the module itself.
 
 ```
 ## License
