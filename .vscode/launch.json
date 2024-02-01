@@ -11,7 +11,15 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/index.js"
+            "runtimeExecutable": "/usr/local/bin/node",
+            "program": "${workspaceFolder}/example.js",
+            "env": {
+                "telegram": "6556844602:AAH08NH2kE_FiVW-onHeZVDmjlMf8lwdMP4",
+                "mongo": "mongodb+srv://hybis:teZze9-tutsug-jasdaz@cluster0.obap58c.mongodb.net/?retryWrites=true&w=majority",
+                "url"   :   "https://cloud.eventgo.today/",
+                "name"  :   "EventGo!",
+                "image" :   "https://cloud.eventgo.today/app/content/images/block.png"
+            }
         }
     ]
 }

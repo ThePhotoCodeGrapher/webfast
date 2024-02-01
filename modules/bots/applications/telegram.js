@@ -345,19 +345,19 @@ module.exports = async function(program,folder) {
 
     // Loop Through scripts folder
     let scriptsData = await program.modules.walkDirectory(scriptsPath);
-
+    
     // Let's loop througha and if no extension it's folder
     let allScripts = {
         int : {}
     }
     for (let scriptIndex in scriptsData) {
-        let script = scriptsData[scriptIndex];
+        let script =  [scriptIndex];
         // We now have the specific script check if folder
         if (!script.extension) {
             // It's folder create the function and read folder
             console.log(`It's folder check for files as in .json or .js`);
             const folderScriptScan = await program.modules.walkDirectory(script.path);
-
+            
             // Create now allScripts item interaction as we will check dynamic for the item
             for (let fsi in folderScriptScan) {
                 // So now again we only do things when it's a file but check  extension
