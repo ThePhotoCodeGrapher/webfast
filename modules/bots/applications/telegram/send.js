@@ -54,6 +54,13 @@ module.exports = async function(program,message,id,buttons) {
     }
 
     const madeRequest = await program.modules.request.post(program,telegramURL,body)
+
+    // Save to send so we can have the id and do things
+    madeRequest.result.uuid = program.uuid.v4();
+    let saveSend = await program.modules.data.findOrCreate(`eventgo`,`send`,{
+        message_id : madeRequest.result.message_id
+    },madeRequest.result);
+
     console.log(`Send Message`);
     return madeRequest;
 }

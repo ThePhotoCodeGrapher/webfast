@@ -2,16 +2,20 @@
     "input"     :       "test input",
     "start"     :       {
         "object"  :   {
-            "text" : "Testing Title : {{TEST}}",
+            "text" : "Test First Title : {{TEST}}",
             "image" :   "{{URL}}app/content/images/block.png"
         },
         "match"    :   {
             "data"  :   [{
-                "response"  :   "anwser text",
+                "anwser"  :   ["anwser text","anwser"],
                 "function"  :   "program.modules.bots.scripts.function.response",
                 "next"      :   "nextFunc"
             },{
-                "response"  :   "other",
+                "anwser"  :   "other",
+                "function"  :   "program.modules.bots.scripts.function.response",
+                "next"      :   "nextFunc"
+            },{
+                "anwser"  :   "hi",
                 "function"  :   "program.modules.bots.scripts.function.response",
                 "next"      :   "nextFunc"
             }]
@@ -20,6 +24,34 @@
             "response"  :   "start",
             "function"  :   "program.modules.bots.scripts.function.response",
             "next"      :   "failResponse"
+        }
+    },
+    "nextFunc"     :       {
+        "object"  :   {
+            "text" : "Testing Title : {{START}}",
+            "buttons" : [
+                [
+                    { "text": "EventGO!",  "web_app" : { "url" : "{{URL}}events/list"}},
+                    { "text": "Create Event", "callback_data": "create_event" }
+                ]
+            ]
+        },
+        "match"    :   {
+            "data"  :   [{
+                "anwser"  :   ["create_event"],
+                "function"  :   "program.modules.bots.scripts.function.response",
+                "next"      :   "finish"
+            }]
+        },
+        "fail"  :   {
+            "response"  :   "start",
+            "function"  :   "program.modules.bots.scripts.function.response",
+            "next"      :   "failResponse"
+        }
+    },
+    "failResponse" : {
+        "object"  :   {
+            "text" : "Sorry Something Wnt wrong : {{START}}"
         }
     }
 }

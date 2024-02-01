@@ -37,7 +37,7 @@ module.exports = {
             } 
 
             // Create the que line command
-            const script = program.modules.telegram.script.int[command];
+            let script = program.modules.telegram.script.int[command];
 
             let current;
 
@@ -51,7 +51,63 @@ module.exports = {
 
                 // Check what to do next first of all save anwser
                 const question = current.script[current.process];
+                // Grab function to process
                 const anwser = middleValue;
+
+                // Check if text then we need to match if not we probably need to run only function and go to next one
+                let matched = false;
+                let anwserData;
+                if (middleValue.text != undefined) {
+                    console.log(`Match Text`);
+                    // Loop through match
+                    anwserData = middleValue.text;
+                    for (let q in question.match.data) {
+                        const qMatch = question.match.data[q];
+
+                        // Check typeof
+                        if (typeof qMatch.anwser == `object`) {
+                            // Match in index
+                            const matchedIndex = qMatch.anwser.indexOf(middleValue.text);
+                            if (matchedIndex != -1) {
+                                matched = qMatch;
+                            }
+                        } else if (qMatch.anwser == middleValue.text) {
+                            matched = qMatch;
+                        }
+                    }
+                } else {
+                    console.error(`Need to set anwser data`);
+                }
+
+                // End of match process fo matched checking
+                if (matched == false && current.q == true) {
+                    // We have different data
+                    console.error(`Not matched`);
+                    // Send command when wrong // or buttons like reset button
+                    return false;
+                } else {
+                    console.log(`Matched`);
+                    current.anwsers[current.process] = {
+                        anwser : anwserData,
+                        message : anwser,
+                        ts : Date.now()
+                    };
+
+                    // Set next steps and get next steps data
+                    try {
+                        const nextData = current.script[matched.next];
+                        if (nextData == undefined) {
+                            throw new Error(`Problems getting nextData for`,current);
+                        }
+                        console.log(`Next Data`);
+                        scriptStart = matched.next;
+                        current.process = matched.next;
+                        script = current.script; 
+                    } catch (err) {
+                        console.error(err);
+                        console.error(`Error getting data for next: ${matched.next}`);
+                    }
+                }
                 
                 console.log(`We have question anwser`);
             } else {
@@ -62,7 +118,8 @@ module.exports = {
                     process : scriptStart,
                     script : script,
                     anwsers : {},
-                    uuid : theUUID
+                    uuid : theUUID,
+                    q : true
                 }
                 program.modules.telegram.functions.que.line[chatID] = setData;
                 current = setData;
@@ -76,6 +133,22 @@ module.exports = {
                 "{{URL}}"   :   process.env.url,
                 "{{TEST}}"  :   "TEST REPLACED"
             }
+
+            // Check if anwsers
+            if (Object.keys(current.anwsers).length > 0) {
+                // Check the anwsers
+                for (let anwserTXT in current.anwsers) {
+                    const typedOf = typeof current.anwsers[anwserTXT].anwser;
+                    
+                    if (typedOf == `string`) {
+                        replace[`{{${String(anwserTXT).toUpperCase()}}}`] = current.anwsers[anwserTXT].anwser;
+                    }
+                }
+                console.log(`Check loop through anwsers`);
+            }
+
+            // Add items to replace
+            console.log(`Add Items to replace`);
 
             // Check if text
             let toSend = {}
@@ -100,7 +173,18 @@ module.exports = {
             }
 
             // Check if text
-            await program.modules.telegram.functions.send(program,toSend,middleValue.chat.id);
+            let buttons;
+            // check for buttons
+            if (theScript.object.buttons != undefined) {
+                buttons = JSON.stringify(theScript.object.buttons);
+                // Loop through replace
+                for (let repKey in replace) {
+                    const newRegx = new RegExp(repKey, 'g');
+                    buttons = buttons.replace(newRegx,replace[repKey]);
+                }
+                buttons = JSON.parse(buttons);
+            }
+            await program.modules.telegram.functions.send(program,toSend,middleValue.chat.id,buttons);
 
             // set que uuid
             program.modules.telegram.functions.que.line[chatID] = current;
