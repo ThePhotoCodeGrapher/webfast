@@ -1,11 +1,16 @@
-module.exports = function () {
+module.exports = function (array) {
     const { readdirSync } = require("fs");
 
+    // Need to walk through array for specific things
     console.log(`WebFast!! Program`);
     let program = {
         ts  :   Date.now(),
         modules : {},
         tmp : {}
+    }
+
+    for (let key in array) {
+        program.set[key] = array[key];
     }
 
     // Setup The Requirements
@@ -14,6 +19,7 @@ module.exports = function () {
         program.fs = await require(`fs`);
         program.uuid = require(`uuid`);
         program.fetch = require(`fetch`);
+      
         return program;
     }
 
@@ -120,9 +126,11 @@ module.exports = function () {
         }
     }
 
-    program.modules.fetch = async function(folder,program) {
+    program.modules.fetch = async function(folder,program,fetch) {
         // TO Fetch folder modules
-        program = await set(program);
+        if (fetch == undefined) {
+            program = await set(program);
+        }
         try {
             // Loop through folder and run module if js
             const readPath = program.path.join(__dirname,folder);
@@ -243,4 +251,5 @@ module.exports = function () {
 
     // Run program fetch
     program.modules.fetch(`modules`,program);
+    return program;
 }

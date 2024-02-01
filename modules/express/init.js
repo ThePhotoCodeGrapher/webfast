@@ -24,7 +24,12 @@ module.exports = async function (program) {
     app.use(bodyParser.urlencoded({ extended: true }));
     app.set('view engine', 'ejs');
   
-    const routesPath = program.path.join(__dirname, `routes`);
+    let routesPath = program.path.join(__dirname, `routes`);
+    // Check if custom routes path
+    if (program.set.path != undefined) {
+      routesPath = program.path.join(program.set.path,`routes`);
+    }
+
     let exprs = {};
   
     try {
