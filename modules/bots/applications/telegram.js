@@ -265,9 +265,7 @@ module.exports = async function(program,folder) {
     }
 
     let teleData = program.path.join(__dirname,`telegram`);
-    if (program.set.path != undefined) {
-        teleData = program.path.join(program.set.path,`bots`,`telegram`);
-    }
+   
     let moduleData = await program.modules.walkDirectory(teleData);
     // Loop Through
     let telegram = {

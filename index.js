@@ -6,7 +6,8 @@ module.exports = function (array) {
     let program = {
         ts  :   Date.now(),
         modules : {},
-        tmp : {}
+        tmp : {},
+        set : {}
     }
 
     for (let key in array) {
