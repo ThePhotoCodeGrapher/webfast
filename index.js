@@ -5,7 +5,8 @@ module.exports = function () {
     let program = {
         ts  :   Date.now(),
         modules : {},
-        tmp : {}
+        tmp : {},
+        set : {}
     }
 
     // Setup The Requirements
