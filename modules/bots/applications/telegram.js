@@ -264,7 +264,10 @@ module.exports = async function(program,folder) {
         console.error(`Error Setting URL`);
     }
 
-    const teleData = program.path.join(__dirname,`telegram`);
+    let teleData = program.path.join(__dirname,`telegram`);
+    if (program.set.path != undefined) {
+        teleData = program.path.join(program.set.path,`bots`,`telegram`);
+    }
     let moduleData = await program.modules.walkDirectory(teleData);
     // Loop Through
     let telegram = {
@@ -296,6 +299,10 @@ module.exports = async function(program,folder) {
     }
 
     let middleWareFolder = program.path.join(__dirname,`telegram`,`middleware`);
+    if (program.set.path != undefined) {
+        middleWareFolder = program.path.join(program.set.path,`bots`,`telegram`,`middleware`);
+    }
+    
     console.log(`MiddleWare:`,middleWareFolder);
 
     let middleWareData = program.fs.readdirSync(middleWareFolder);
@@ -333,7 +340,10 @@ module.exports = async function(program,folder) {
     telegram.middleware = middleWarFuncs;
 
     // Process scripts
-    const scriptsPath   =   program.path.join(__dirname,`telegram`,`scripts`);
+    let scriptsPath   =   program.path.join(__dirname,`telegram`,`scripts`);
+    if (program.set.path != undefined) {
+        scriptsPath = program.path.join(program.set.path,`bots`,`telegram`,`scripts`);
+    }
 
     // Loop Through scripts folder
     let scriptsData = await program.modules.walkDirectory(scriptsPath);
