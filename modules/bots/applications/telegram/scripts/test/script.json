@@ -1,0 +1,37 @@
+{
+    "input"     :       "test input",
+    "start"     :       {
+        "object"  :   {
+            "text" : "Testing Title : {{TEST}}",
+            "image" :   "{{URL}}app/content/images/block.png"
+        },
+        "match"    :   {
+            "data"  :   [{
+                "response"  :   "anwser text",
+                "function"      :   "program.modules.bots.scripts.function",
+                "reply_markup"      :  {
+                    "inline_keyboard": [[
+                        {
+                            "text": "A",
+                            "callback_data": "A1"            
+                        }, 
+                        {
+                            "text": "B",
+                            "callback_data": "C1"            
+                        }]
+                    ]
+                },
+                "next"      :   "nextFunc"
+            },{
+                "response"  :   "other",
+                "function"  :   "program.modules.bots.scripts.function",
+                "next"      :   "nextFunc"
+            }]
+        },
+        "fail"  :   {
+            "response"  :   "start",
+            "function"  :   "program.modules.bots.scripts.function",
+            "next"      :   "failResponse"
+        }
+    }
+}

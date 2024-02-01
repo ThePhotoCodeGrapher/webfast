@@ -1,7 +1,7 @@
 module.exports = async function(program,message,id,buttons) {
     console.log(`Telegram Send`);
     // Create Request for send
-    const telegramURL = `https://api.telegram.org/bot${process.env.telegram}/sendMessage`;
+    let telegramURL = `https://api.telegram.org/bot${process.env.telegram}`;
 
     // Check if buttons is send as []
     let options;
@@ -27,6 +27,23 @@ module.exports = async function(program,message,id,buttons) {
         reply_to_message_id: null,
         chat_id : id,
         parse_mode : 'HTML'
+    }
+
+    // Check if object
+    if (typeof message == `object`) {
+        if (message.text != undefined && message.image == undefined) {
+            body.text = message.text;
+            telegramURL = `${telegramURL}/sendMessage`;
+        } 
+
+        // Check for image
+        if (message.image != undefined) {
+            body.photo = message.image;
+            body.caption = message.text;
+            delete body.text;
+            delete body.reply_to_message_id;
+            telegramURL = `${telegramURL}/sendPhoto`;
+        }
     }
 
     // If options is there add as

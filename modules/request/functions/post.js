@@ -15,12 +15,17 @@ module.exports = async function(program, url, body) {
 
       // Using standard fetch function
       const response = await fetch(url, theOptions);
+        // Get response body
+        const respBody = await response.json(); // Assuming the response is JSON
+
+        // Get response headers
+        const respHeaders = response.headers;
 
       if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      const responseData = await response.json();
+      const responseData = respBody;
       console.log('Response Data:', responseData);
 
       // Return response data or true to indicate success

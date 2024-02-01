@@ -44,7 +44,7 @@ module.exports = async function(db, collection, condition, dataToCreate) {
                 if (result.acknowledged === true) {
                     console.log('New document created:', result.insertedId);
                     const existingDocument = await collection.findOne(condition);
-                    return existingDocument;
+                    return dataToCreate;
                 } else {
                     console.error('Failed to create a new document.');
                     return null;

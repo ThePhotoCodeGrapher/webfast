@@ -53,6 +53,19 @@ module.exports = async function(program,folder) {
                         }
                         
                         middleValue.chat.uuid = user.uuid;
+
+                        // Find or create to add message to db
+                        body.uuid = program.uuid.v4();
+                        let received = await program.modules.data.findOrCreate(`eventgo`,`received`,{
+                            update_id : body.update_id
+                        },body);
+                        
+                        // Set body from receivd
+                        body.uuid = received.uuid;
+                        
+
+                        console.log(`We have received message`,received);
+
                         try {
                             if (middleValue.text.startsWith('/')) {
                                 // If it starts with a slash, it might be a command
@@ -69,18 +82,20 @@ module.exports = async function(program,folder) {
                                 // Let's split up
                                 let match = [];
 
-                                let splitVariables = variables.split(`-`);
+                                if (variables != undefined) {
+                                    let splitVariables = variables.split(`-`);
 
-                                if (splitVariables.length > 4) {
-                                    match[0] = splitVariables[0];
-                                    if (splitVariables.length >= 5) {
-                                        match[1] = splitVariables[splitVariables.length-1];
-                                        let uuid = variables.replace(`${match[0]}-`,``).replace(`-${match[1]}`,``);;
-                                        match[2] = uuid;
+                                    if (splitVariables.length > 4) {
+                                        match[0] = splitVariables[0];
+                                        if (splitVariables.length >= 5) {
+                                            match[1] = splitVariables[splitVariables.length-1];
+                                            let uuid = variables.replace(`${match[0]}-`,``).replace(`-${match[1]}`,``);;
+                                            match[2] = uuid;
+                                        }
                                     }
                                 }
                                 
-                                if (match) {
+                                if (match.length > 0) {
                                     // Extract the parts
                                     const action = match[0];
                                     const uuid = match[2];
@@ -93,10 +108,22 @@ module.exports = async function(program,folder) {
                                     // It's something to do check if we can find this in applications
                                     try {
                                         console.log(`Run Sub Function`);
-                                        await program.modules.telegram.functions[action](program,key,action,uuid,subFunction,middleValue);
+                                        let resp = await program.modules.telegram.functions[action](program,key,action,uuid,subFunction,middleValue,received);
+
+                                        // Switch resp;
+                                        console.log(`Check if we send message`);
+                                        switch (resp.response) {
+                                            case `message`:
+                                                console.log(`We have response, check for response message`);
+                                                const message = respFunc[action];
+                                                await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                            break;
+                                            default:
+                                                console.error(`Missing Response Action Telegram: ${action}`);
+                                        }
                                     } catch (err) {
                                         console.error(err);
-                                        console.error(`Error Sub Function`);
+                                        console.error(`Error Sub Function ${key}, ${action}`);
                                     }
 
                                 } else {
@@ -104,7 +131,7 @@ module.exports = async function(program,folder) {
                                     // So run the function
                                     try {
                                         // Run dynamic the type of middleware
-                                        const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue);
+                                        const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue,received);
                                         const respFunc = runFunc.response;
                                         // PRocess response for object
                                         const action = Object.keys(respFunc)[0];
@@ -156,12 +183,16 @@ module.exports = async function(program,folder) {
                                 } catch (err) {
                                     //console.error(err);
                                     //console.error(`Error For Telegram Function`);
+                                    console.log(`Checking for script`);
+                                    const scripting = await program.modules.telegram.script.function.check(program,command,middleValue.chat.id,middleValue,received);
+                                    /*
                                     await program.modules.telegram.functions.send(program,`${command}`,middleValue.chat.id,[
                                         [
                                             { text: 'EventGO!',  web_app : { url : 'https://cloud.eventgo.today/events/list'}},
                                             { text: 'Create Event', callback_data: 'create_event' },
                                         ]
-                                    ]);
+                                    ]);*/
+                                    console.log(scripting);
                                 }
 
                                 
@@ -170,8 +201,6 @@ module.exports = async function(program,folder) {
                             }
                         } catch (message) {
                             // Process as other
-                            res.send(`OK | ${command} | ${variables}`)
-                            res.status(200);
                             console.log(`Process Different`);
                             let checkArray = [`location`];
                             // Loop through checkArray
@@ -209,6 +238,11 @@ module.exports = async function(program,folder) {
                                     }
                                 }
                             }
+
+                            console.log(`We do something here`);
+
+                            res.send(`OK `)
+                            res.status(200);
                         }
                     } catch (err) {
                         console.error(err);
@@ -297,6 +331,84 @@ module.exports = async function(program,folder) {
 
     // Add middleware
     telegram.middleware = middleWarFuncs;
+
+    // Process scripts
+    const scriptsPath   =   program.path.join(__dirname,`telegram`,`scripts`);
+
+    // Loop Through scripts folder
+    let scriptsData = await program.modules.walkDirectory(scriptsPath);
+
+    // Let's loop througha and if no extension it's folder
+    let allScripts = {
+        int : {}
+    }
+    for (let scriptIndex in scriptsData) {
+        let script = scriptsData[scriptIndex];
+        // We now have the specific script check if folder
+        if (!script.extension) {
+            // It's folder create the function and read folder
+            console.log(`It's folder check for files as in .json or .js`);
+            const folderScriptScan = await program.modules.walkDirectory(script.path);
+
+            // Create now allScripts item interaction as we will check dynamic for the item
+            for (let fsi in folderScriptScan) {
+                // So now again we only do things when it's a file but check  extension
+                const scriptItem = folderScriptScan[fsi];
+                // We have folder data
+                if (!scriptItem.extension) {
+                    continue;
+                }
+
+                // We have script create 
+                console.log(`Folder Script Scan`,scriptItem);
+
+                // Switch extension
+                const extCheck = scriptItem.extension.slice(1);
+
+                // We have the extension so swich between those
+                switch (extCheck){
+                    case `json`:
+                        console.log(`Read File`);
+                        try {
+                            const readFile = JSON.parse(await program.fs.readFileSync(scriptItem.path,`utf-8`));
+
+                            // Create the command
+                            const interact = readFile.input;
+
+                            // For interaction
+                            delete readFile.input;
+                            allScripts.int[interact] = readFile;
+                            
+                            console.log(`We have readed the file`);
+                        } catch (err) {
+                            console.error(err);
+                            console.error(`Error Reading JSON file`);
+                        }
+                    break;
+                    default:
+                        // When it's not like json
+                        console.log(`it's something else`);
+                }
+            }
+
+            console.log(`Walk Through folder and check for script.json`);
+
+        } else {
+            // It's main script functions
+            console.log(`Main Script Function In Specific folder`);
+            try {
+                // Add script to allscript
+                allScripts[script.name] =   require(script.path);
+                console.log(`Script : ${script.name} - loaded`);
+            } catch (err) {
+                console.error(err);
+                console.error(`Error Loading script`,script);
+            }
+        }
+    }
+
+    // Set all script
+    telegram.script = allScripts;
 
     program.modules.telegram = telegram;
     return program;
