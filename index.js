@@ -245,3 +245,9 @@ module.exports = function () {
     // Run program fetch
     program.modules.fetch(`modules`,program);
 }
+
+if (process.env.log == undefined) {
+    console.log = function() {
+        
+    }
+}
