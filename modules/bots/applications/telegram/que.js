@@ -84,6 +84,7 @@ module.exports = {
                     // We have different data
                     console.error(`Not matched`);
                     // Send command when wrong // or buttons like reset button
+                    // check what to do
                     return false;
                 } else {
                     console.log(`Matched`);
