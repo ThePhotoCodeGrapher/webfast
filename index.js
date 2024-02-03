@@ -14,15 +14,15 @@ module.exports = function (array) {
     }
 
     // Setup The Requirements
-    async function set(program) {
-        program.path = require(`path`);
-        program.fs = require(`fs`);
-        program.uuid = require(`uuid`);
-        program.fetch = require(`fetch`);
-        return program;
+    program.path = require(`path`);
+    program.fs = require(`fs`);
+    program.uuid = require(`uuid`);
+    program.fetch = require(`fetch`);
+    program.util = require(`util`);
+    program.exec = program.util.promisify(require('child_process').exec);
+    program.image = {
+        size : require('image-size')
     }
-
-    set(program);
 
     // Program Fetch
     program.modules.dependOn = async function(reqFunc,program,name,callback) {

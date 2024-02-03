@@ -36,7 +36,7 @@ module.exports = function(db,collection) {
 
         // Process the result
         console.log('Query result:', result);
-
+        return result;
     } finally {
         // Close the MongoClient
         await client.close();

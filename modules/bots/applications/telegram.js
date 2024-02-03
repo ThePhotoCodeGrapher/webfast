@@ -48,8 +48,13 @@ module.exports = async function(program,folder) {
                             id : middleValue.chat.id
                         },middleValue.chat);
                         let typeOFF = typeof user;
-                        if (middleValue.chat.uuid == user.uuid) {
+                        if (middleValue.chat.uuid == user.uuid || user.profileImage == undefined) {
                             user.new = true;
+
+                            // do the process for downloading the users profile image
+                            console.log(`Process Image`);
+                            //getUserProfilePhotos
+                            program.modules.telegram.functions.get.UserProfilePhotos(program,user);
                         }
                         
                         middleValue.chat.uuid = user.uuid;
@@ -351,7 +356,7 @@ module.exports = async function(program,folder) {
         int : {}
     }
     for (let scriptIndex in scriptsData) {
-        let script =  [scriptIndex];
+        let script =  scriptsData[scriptIndex];
         // We now have the specific script check if folder
         if (!script.extension) {
             // It's folder create the function and read folder
