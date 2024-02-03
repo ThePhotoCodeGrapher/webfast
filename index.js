@@ -1,7 +1,6 @@
 module.exports = function (array) {
     const { readdirSync } = require("fs");
 
-    // Need to walk through array for specific things
     console.log(`WebFast!! Program`);
     let program = {
         ts  :   Date.now(),
@@ -11,18 +10,19 @@ module.exports = function (array) {
     }
 
     for (let key in array) {
-        program.set[key] = array[key];
+        program.set[key]=array[key]
     }
 
     // Setup The Requirements
     async function set(program) {
-        program.path = await require(`path`);
-        program.fs = await require(`fs`);
+        program.path = require(`path`);
+        program.fs = require(`fs`);
         program.uuid = require(`uuid`);
         program.fetch = require(`fetch`);
-      
         return program;
     }
+
+    set(program);
 
     // Program Fetch
     program.modules.dependOn = async function(reqFunc,program,name,callback) {
@@ -127,11 +127,8 @@ module.exports = function (array) {
         }
     }
 
-    program.modules.fetch = async function(folder,program,fetch) {
+    program.modules.fetch = async function(folder,program) {
         // TO Fetch folder modules
-        if (fetch == undefined) {
-            program = await set(program);
-        }
         try {
             // Loop through folder and run module if js
             const readPath = program.path.join(__dirname,folder);
@@ -252,5 +249,26 @@ module.exports = function (array) {
 
     // Run program fetch
     program.modules.fetch(`modules`,program);
+
+    // Check if program.set.path is set
+    if (program.set.path != undefined) {
+        // We have the path for normal path so check for the folder app
+        try {
+            const appFolder = program.path.join(program.set.path,`app`,`init.js`);
+            // Now include this appFolder // set app
+            program.app = require(appFolder)(program);
+            console.log(`Include App`);
+        } catch (err) {
+            console.error(err);
+            console.error(`Error with program set folder`);
+        }
+    }
     return program;
+}
+
+// to cut the log
+if (process.env.log == undefined) {
+    console.log = function() {
+        
+    }
 }
