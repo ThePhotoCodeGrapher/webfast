@@ -2,6 +2,7 @@ module.exports = async function (program) {
   console.log(`Starting UP Express`);
   program.express = {
       ts: Date.now(),
+      process : program.set.process
   };
 
   const express = require('express');
@@ -138,12 +139,18 @@ module.exports = async function (program) {
 
           // Check if minify at the end
           const fileName = req.params.file;
-          const isMinified = /-min\.js$/.test(fileName);
+          const isExtend = /-extend\.js$/.test(fileName);
 
-          if (isMinified) {
-              console.log(`${fileName} ends with -min.js`);
-              const toRequestFile = req.params.file.replace(`-min.js`, `.js`);
+          // Check if extending
+          if (isExtend) {
+              console.log(`${fileName} ends with -extend.js`);
+              // IS extended file include loading in
+
+              const toRequestFile = req.params.file.replace(`-extend.js`, `.js`);
               contentFolder = program.path.join(__dirname, `..`, `..`, `app`, `content`, req.params.type, toRequestFile);
+              // check if file exists in process, if not make it before giving out
+              // Check i
+              console.log(`Content Folder`);
           } else {
               console.log(`${fileName} does not end with -min.js`);
           }
@@ -154,6 +161,15 @@ module.exports = async function (program) {
           console.error(`Error Getting : ${req.params.type}`, req.params.file);
       }
   })
+
+  // Walkt through for paths to be open 
+  if (program.set.contentPath != undefined) {
+    // Loop Through
+    const readDir = program.fs.readdirSync(program.set.contentPath);
+    
+    // Create request app path for it
+    console.log(`We have directory`);
+  }
 
   app.listen(port, () => {
       console.log(`Server Listening`, port, basePath);
@@ -278,14 +294,14 @@ module.exports = async function (program) {
             const split = path.split(".")
             
             // Check if function is running in program modules that you can add in the init scirpt when using remote
-            if (program.modules.receive != undefined) {
+            if (program.express.process != undefined) {
                 try {
-                    let resp = await program.modules.process[path[0]][path[1]][path[2]](program,ws,json,data,path);
+                    let resp = await program.express.process[split[0]][split[1]][split[2]](program,ws,json,data,path);
                     if (resp != false) {
                         ws.send(JSON.stringify(resp));
                     }
                 } catch (err) {
-                    console.error(`Error Running receive`);
+                    console.error(`Error Running program.express.process for `,split[0],split[1],split[2]);
                     ws.send(JSON.stringify({
                         ts : Date.now(),
                         error : true,
