@@ -5,6 +5,10 @@ module.exports = async function(req,res,body,params,command,middleValue) {
     if (middleValue.location != undefined) {
         locSendMessage = `Thank you for sending your location\n ${middleValue.location.longitude}\n${middleValue.location.latitude}`;
     }
+
+    const scripting = await program.modules.telegram.script.function.check(program,command,middleValue.chat.id,middleValue,body);
+    console.log(scripting);
+
     return {
         message : locSendMessage,
         response : {

@@ -34,6 +34,7 @@ module.exports = {
         } catch(err) {
             console.error(err);
             console.error(`Error Scripting`);
+            return false;
         }
     },
     response : async function() {

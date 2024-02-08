@@ -267,16 +267,46 @@ module.exports = async function (program) {
     });
 
     // WebSocket on message event
-    ws.on('message', (message) => {
+    ws.on('message', async (message) => {
         console.log(`Received message from ${clientId}: ${message}`);
 
-        // Add your custom on message logic here
-        // For example, you can broadcast the message to all connected clients
-        clients.forEach((client, id) => {
-            if (client.readyState === WebSocket.OPEN && id !== clientId) {
-                client.send(`Broadcast from ${clientId}: ${message}`);
+        try {
+            // Check for function
+            const json = JSON.parse(message.toString(`utf-8`));
+            const data = json.message;
+            const path = json.path;
+            const split = path.split(".")
+            
+            // Check if function is running in program modules that you can add in the init scirpt when using remote
+            if (program.modules.receive != undefined) {
+                try {
+                    let resp = await program.modules.process[path[0]][path[1]][path[2]](program,ws,json,data,path);
+                    if (resp != false) {
+                        ws.send(JSON.stringify(resp));
+                    }
+                } catch (err) {
+                    console.error(`Error Running receive`);
+                    ws.send(JSON.stringify({
+                        ts : Date.now(),
+                        error : true,
+                        message : `Error Event Program receive`
+                    }));
+                }
             }
-        });
+
+            // Add your custom on message logic here
+            // For example, you can broadcast the message to all connected clients
+            clients.forEach((client, id) => {
+                if (client.readyState === WebSocket.OPEN && id !== clientId) {
+                    //ws.send(`Broadcast from ${clientId}: ${message}`);
+                }
+            });
+
+            // Check if 
+        } catch(err) {
+            console.error(`Error Something`);
+
+        }
     });
 });
 

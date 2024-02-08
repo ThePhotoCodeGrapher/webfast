@@ -49,11 +49,15 @@ module.exports = async function(program,req,res,body,params,command,middleValue)
     console.log(scripting);
     
     // Send back
-    return {
-        message : locSendMessage,
-        response : {
+    if (scripting == true) {
+        return true;
+    } else {
+        return {
             message : locSendMessage,
-            uuid : uuid
+            response : {
+                message : locSendMessage,
+                uuid : uuid
+            }
         }
     }
 }
