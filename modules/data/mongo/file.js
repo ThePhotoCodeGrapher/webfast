@@ -3,7 +3,7 @@ const fs = require('fs');
 
 // Define the MongoDB URI
 const uri = process.env.mongo;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri);
 
 module.exports = {
     uploadBuffer: async function (progam,buffer, filename, metadata = {}, callback) {

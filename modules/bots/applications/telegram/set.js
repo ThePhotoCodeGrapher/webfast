@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 const uri = process.env.mongo;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri);
 
 module.exports = {
     profilePhoto : async function(program,content,meta) {

@@ -132,6 +132,7 @@ module.exports = {
             // Create replacelist
             let replace = {
                 "{{URL}}"   :   process.env.url,
+                "{{WEBURL}}"   :   process.env.webURL,
                 "{{TEST}}"  :   "TEST REPLACED"
             }
 

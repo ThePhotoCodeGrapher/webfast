@@ -31,7 +31,7 @@
             "text" : "Testing Title : {{START}}",
             "buttons" : [
                 [
-                    { "text": "EventGO!",  "web_app" : { "url" : "{{URL}}events/list"}},
+                    { "text": "EventGO!",  "web_app" : { "url" : "{{WEBURL}}concepts/eventgo/events-list"}},
                     { "text": "Create Event", "callback_data": "create_event" }
                 ]
             ]
