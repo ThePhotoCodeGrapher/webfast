@@ -76,7 +76,27 @@ module.exports = {
                         }
                     }
                 } else {
-                    console.error(`Need to set anwser data`);
+                    // Check if something with type: 
+                    for (let li in question.match.data) {
+                        let matchCheck = question.match.data[li];
+                        if (typeof matchCheck.anwser == `object`) {
+                            // Grab type if it's there
+                            switch (matchCheck.anwser.type) {
+                                case command:
+                                    console.log(`It's the dynamic thing`);
+                                    matched = matchCheck;
+                                    let variable = data.message[command]
+                                    anwserData = {
+                                        type : command,
+                                        data : variable
+                                    };
+                                break;
+                                default:
+                                    console.log(`No matching type found`);
+                            }
+                        }
+                    }
+
                 }
 
                 // End of match process fo matched checking

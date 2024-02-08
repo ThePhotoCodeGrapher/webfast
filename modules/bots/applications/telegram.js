@@ -207,7 +207,7 @@ module.exports = async function(program,folder) {
                         } catch (message) {
                             // Process as other
                             console.log(`Process Different`);
-                            let checkArray = [`location`];
+                            let checkArray = [`location`,`photo`];
                             // Loop through checkArray
                             for (let c in checkArray) {
                                 const command = checkArray[c];
@@ -215,7 +215,7 @@ module.exports = async function(program,folder) {
                                 if (indexCheck != -1) {
                                     console.log(`Run this as middleware`);
                                     try {
-                                        const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue);
+                                        const runFunc   =   await program.modules.telegram.middleware[key][command](program,req,res,body,params,command,middleValue);
                                         const respFunc = runFunc;
                                         // PRocess response for object
                                         if (respFunc == undefined) {

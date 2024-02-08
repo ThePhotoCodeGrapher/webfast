@@ -15,7 +15,9 @@
                 "function"  :   "program.modules.bots.scripts.function.response",
                 "next"      :   "nextFunc"
             },{
-                "anwser"  :   "hi",
+                "anwser"  :   {
+                    "type" : "photo"
+                },
                 "function"  :   "program.modules.bots.scripts.function.response",
                 "next"      :   "nextFunc"
             }]
