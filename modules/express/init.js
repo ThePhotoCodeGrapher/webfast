@@ -168,6 +168,33 @@ module.exports = async function (program) {
     const readDir = program.fs.readdirSync(program.set.contentPath);
     
     // Create request app path for it
+    //loop through
+    for (let rdi in readDir) {
+        // Loop
+        const dirItem = readDir[rdi];
+        const dirPath = program.path.join(program.set.contentPath,dirItem);
+        // Now read the dir
+        // Create app.get
+        try {
+            const theRoute = `/inc/${dirItem}/*`;
+            app.get(theRoute, async (req, res) => {
+                const params = req.params;
+
+                try {
+                    const fullPath = program.path.join(dirPath,req.params[0]);
+                    res.sendFile(fullPath);
+                } catch (err) {
+                    console.error(`Error Responding with route`);
+                    console.error(err);
+                    res.status(500);
+                }
+                console.log(`The Route is there`, theRoute);
+            });
+
+        } catch (err) {
+            console.error(`Errro for path read dir including something`, diritem);
+        }
+    }
     console.log(`We have directory`);
   }
 
