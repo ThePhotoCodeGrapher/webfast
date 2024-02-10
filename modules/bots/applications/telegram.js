@@ -42,6 +42,9 @@ module.exports = async function(program,folder) {
                         let middleValue = body[key];
                         // Check for split
                         // Try for message
+                        if (middleValue.chat == undefined) {
+                            middleValue.chat = {}
+                        }
                         middleValue.chat.ts = Date.now();
                         middleValue.chat.uuid = program.uuid.v4();
                         let user = await program.modules.data.findOrCreate(`eventgo`,`telegram`,{
