@@ -75,6 +75,7 @@ module.exports = async function(program,folder) {
                         console.log(`We have received message`,received);
 
                         try {
+                            // Or check if single word
                             if (middleValue.text.startsWith('/')) {
                                 // If it starts with a slash, it might be a command
                                 const parts = middleValue.text.split(' ');
@@ -139,20 +140,25 @@ module.exports = async function(program,folder) {
                                     // So run the function
                                     try {
                                         // Run dynamic the type of middleware
-                                        const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue,received);
+                                        
+                                        const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue,received,program);
                                         const respFunc = runFunc.response;
                                         // PRocess response for object
                                         const action = Object.keys(respFunc)[0];
                                         
                                         // switch action
-                                        switch (action) {
-                                            case `message`:
-                                                console.log(`We have response, check for response message`);
-                                                const message = respFunc[action];
-                                                await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
-                                            break;
-                                            default:
-                                                console.error(`Missing Response Action Telegram: ${action}`);
+                                        if (respFunc == true) {
+                                            // you can do something here
+                                        } else {
+                                            switch (action) {
+                                                case `message`:
+                                                    console.log(`We have response, check for response message`);
+                                                    const message = respFunc[action];
+                                                    await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                                break;
+                                                default:
+                                                    console.error(`Missing Response Action Telegram: ${action}`);
+                                            }
                                         }
                                     } catch (err) {
                                         //console.error(err);
@@ -173,7 +179,7 @@ module.exports = async function(program,folder) {
                                 const command = message;
                                 try {
                                     // Run dynamic the type of middleware
-                                    const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue);
+                                    const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue,program);
                                     const respFunc = runFunc.response;
                                     // PRocess response for object
                                     const action = Object.keys(respFunc)[0];

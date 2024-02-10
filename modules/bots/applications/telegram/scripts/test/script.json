@@ -1,5 +1,5 @@
 {
-    "input"     :       "test input",
+    "input"     :       "start",
     "start"     :       {
         "object"  :   {
             "text" : "Test First Title : {{TEST}}",

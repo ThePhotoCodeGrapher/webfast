@@ -67,9 +67,15 @@ module.exports = {
                         // Check typeof
                         if (typeof qMatch.anwser == `object`) {
                             // Match in index
-                            const matchedIndex = qMatch.anwser.indexOf(middleValue.text);
-                            if (matchedIndex != -1) {
-                                matched = qMatch;
+                            try {
+                                const matchedIndex = qMatch.anwser.indexOf(middleValue.text);
+                                if (matchedIndex != -1) {
+                                    matched = qMatch;
+                                }
+                            } catch (err){
+                                if (middleValue.text == `stop` || middleValue.text == `reset`) {
+                                    delete program.modules.telegram.functions.que.line[chatID];
+                                }
                             }
                         } else if (qMatch.anwser == middleValue.text) {
                             matched = qMatch;
@@ -105,6 +111,8 @@ module.exports = {
                     console.error(`Not matched`);
                     // Send command when wrong // or buttons like reset button
                     // check what to do
+                    // check if stop
+                   
                     return false;
                 } else {
                     console.log(`Matched`);
