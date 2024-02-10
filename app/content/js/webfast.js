@@ -164,7 +164,6 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
 }
 
 // Call the function to start the WebSocket connection
-web.fast.connectWebSocket(socketURL);
 web.fast.receive = function(data,message) {
     // Placeholder for processing the received data
     // Implement your logic here (e.g., update UI, handle specific messages)
@@ -303,4 +302,7 @@ jQuery(document).ready(function() {
                 console.error(`No Action for : ${elementType}`);
         }
     });
+
+    // Connect to websocket
+    web.fast.connectWebSocket(socketURL);
 });
