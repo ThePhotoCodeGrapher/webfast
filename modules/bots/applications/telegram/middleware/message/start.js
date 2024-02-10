@@ -4,6 +4,7 @@ module.exports = async function(req,res,body,params,command,middleValue,received
     
     // Do the script thing
     if (middleValue.text.startsWith(`/`)) {
+        middleValue.origin = middleValue.text;
         middleValue.text = `start`;
         const scripting = await program.modules.telegram.script.function.check(program,command,middleValue.from.id,middleValue,received);
         console.log(`Scripting`);

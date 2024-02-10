@@ -42,6 +42,13 @@ module.exports = {
             let current;
 
             let theUUID = program.uuid.v4();
+            
+            if (program.modules.telegram.functions.que.line[chatID] != undefined && middleValue.origin != undefined) {
+                if (middleValue.origin.startsWith(`/`)) {
+                    delete program.modules.telegram.functions.que.line[chatID];
+                }
+            }
+
             if (program.modules.telegram.functions.que.line[chatID] != undefined) {
                 // It's original que
                 // Process response
@@ -91,7 +98,13 @@ module.exports = {
                                 case command:
                                     console.log(`It's the dynamic thing`);
                                     matched = matchCheck;
-                                    let variable = data.message[command]
+                                    let variable;
+                                    if (data.message != undefined) {
+                                        variable = data.message[command]
+                                    } else if (data.callback_query != undefined) {
+                                        variable = data.callback_query
+                                    }
+
                                     anwserData = {
                                         type : command,
                                         data : variable
@@ -112,7 +125,7 @@ module.exports = {
                     // Send command when wrong // or buttons like reset button
                     // check what to do
                     // check if stop
-                    if (middleValue.text == `reset` || middleValue.text `stop`) {
+                    if (String(middleValue.text) == `reset` || String(middleValue.text) == `stop`) {
                         delete program.modules.telegram.functions.que.line[chatID];
                     }
                     return false;
@@ -158,6 +171,13 @@ module.exports = {
 
             // Get item
             const theScript = script[scriptStart];
+
+            if (scriptStart == `finish`) {
+                // Delete from list
+                setTimeout(function(){
+                    delete program.modules.telegram.functions.que.line[chatID];
+                },150);
+            }
 
             // Create replacelist
             let replace = {
