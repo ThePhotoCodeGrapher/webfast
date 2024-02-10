@@ -285,14 +285,20 @@ jQuery(document).ready(function() {
                 }
 
                 const webFastFunc = jQuery(this).attr(`webfast-func`);
-                web.fast.sendMessage(`socket.api.${webAction}`,{
-                    ts : Date.now(),
-                    ell : jQuery(this).attr(`id`),
-                    other : other,
-                    action : action,
-                    webAction : webAction,
-                    function : webFastFunc
+
+                // Create que instead of sending quick
+                web.fast.que.list.push({
+                    path : `socket.api.${webAction}`,
+                    message : {
+                        ts : Date.now(),
+                        ell : jQuery(this).attr(`id`),
+                        other : other,
+                        action : action,
+                        webAction : webAction,
+                        function : webFastFunc
+                    }
                 })
+
             break;
             case "BUTTON":
                 // Check button interaction

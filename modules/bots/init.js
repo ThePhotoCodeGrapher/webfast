@@ -2,6 +2,10 @@ module.exports = {
     dependOn : [`express.app`],
     name : 'bot',
     run : async function(program,name) {
+        if (process.env.bot == 'false') {
+            return false;
+        }
+
         console.log(`Running ${name}`);
         // Scan bots folder and exclude
         const routesPath = program.path.join(__dirname,`applications`);
