@@ -6,8 +6,71 @@ web.fast = {
         console.log(`Action Function`,data,ell);
     },
     functions : {
+        isURL : function(str) {
+            // Regular expression to check if a string is a URL
+            var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+                '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+                '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+                '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+            return pattern.test(str);
+        },
         form : function(data,ell) {
             console.log(`Handle Form Function`);
+        },
+        list : function(data) {
+            console.log(`When we have a list function run`);
+            console.log(data);
+            // Get ellement data
+            const ellData = web.fast.tmp.list[data.ell];
+
+            // So we have the html
+            const ell = ellData.ell;
+            
+            // Now loop through list item
+            for (let listI in data.list) {
+                const listItem = data.list[listI];
+                const uuid = `${listItem.uuid}`;
+                delete listItem.uuid;
+                console.log(uuid,`The List Item`,listItem);
+                const div = jQuery(ellData.html).clone();
+                jQuery(div).attr(`id`,uuid);
+
+                // Now check for listitem
+                for (let key in listItem) {
+                    // Now we have listitems
+                    let itemList = listItem[key];
+
+                    // Get item
+                    console.log(`The Item List`);
+                    console.log(itemList);
+                    const setText = itemList.text;
+                    jQuery(div).find(`[webfast-ell="${key}"]`).each(function() {
+                        var elementType = $(this).prop('tagName').toLowerCase();
+                        console.log(`Set Element`, elementType);
+                        switch (elementType) {
+                            case 'img':
+                                if (isURL(setText)) {
+                                    $(this).attr('src', setText); 
+                                } else {
+                                    console.error(`List missing URL for image`);
+                                }
+
+                                break;
+                            case 'input':
+                                $(this).val(setText);
+                                break;
+                            default:
+                                $(this).html(setText);
+                                break;
+                        }
+                    });
+                    
+                }
+
+                jQuery(ell).append(div);
+            }
         }
     },
     que : {
@@ -26,9 +89,15 @@ web.fast = {
         }
     },
     tmp : {
-        int : {}
+        int : {},
+        list: {}
     },
-    socket : undefined
+    socket : undefined,
+    process : {
+        list : function(data) {
+            console.log(`Processing List`);
+        }
+    }
 }
 // Connect to the Socket.IO server
 const telegram = window.Telegram.WebApp;
@@ -58,7 +127,7 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
         };
 
         ws.onmessage = (event) => {
-            console.log('Received:', event.data);
+            //console.log('Received:', event.data);
             // Handle received data
             web.fast.que.state = Date.now();
             web.fast.receive(`socket`,event.data); // Placeholder for processing response
@@ -96,10 +165,36 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
 
 // Call the function to start the WebSocket connection
 web.fast.connectWebSocket(socketURL);
-web.fast.receive = function(data) {
+web.fast.receive = function(data,message) {
     // Placeholder for processing the received data
     // Implement your logic here (e.g., update UI, handle specific messages)
-    console.log('Processing received data:', data);
+    //console.log('Processing received data:', data,message);
+    const json = JSON.parse(message);
+    switch (data) {
+        case `socket`:
+            // Socket Data response
+            // Check if js
+            if (json.js) {
+                try {
+                    eval(json.js);
+                } catch (err){
+                    console.error(`Error Running Message js`);
+                }
+            }
+
+            // Check if there is any func or something
+            if (json.func != undefined) {
+                // Run this func with the data
+                console.log(`Run Function`,`web.fast.${json.func}`);
+                try {
+                    eval(`web.fast.${json.func}`)(json.data)
+                } catch (err) {
+                    console.error(`Error with running dynamic function`);
+                    console.error(err);
+                }
+            }
+        break;
+    }
 }
 
 // On Ready desable all forms with jquery
@@ -134,6 +229,8 @@ jQuery(document).ready(function() {
             console.log(`Set UUID: ${randomValue}`);
             jQuery(this).attr(`id`,randomValue);
         }
+
+        const id = jQuery(this).attr(`id`);
         
         switch (elementType) {
             case "FORM":
@@ -151,16 +248,51 @@ jQuery(document).ready(function() {
                 // Make request to server with websocket thingy
                 // Set in QUE
                 let other;
-                if (action == `list`) {
+                console.log(`The Action`,action);
+                if (action.split(`.`)[1] == `list`) {
                     other = {
-                        type : action,
-                        html : jQuery(this).html()
+                        type : action
                     }
+
+                    // Create empty list 
+                    const html = jQuery(this).html();
+                    jQuery(this).html(``);
+                    // Set List Event data
+                    web.fast.tmp.list[id] = {
+                        html : html, 
+                        ell : this,
+                        items : []
+                    };
+
+                    // Now scan all 
+                    jQuery(html).find(`[webfast-ell]`).each(function(){
+                        if (jQuery(this).attr(`id`) == undefined) {
+                            const newArray = new Uint32Array(1);
+                            window.crypto.getRandomValues(newArray);
+                            const newRandom = newArray[0];
+
+                            const name = jQuery(this).attr(`webfast-ell`);
+                            console.log(`Set UUID: ${newRandom}`);
+                            jQuery(this).attr(`id`,newRandom);
+                            web.fast.tmp.list[id].items.push({
+                                id : newRandom,
+                                name : name
+                            });
+                        }
+                    });
+
+                    other.items = web.fast.tmp.list[id].items;
+                    console.log(`We found some`);
                 }
+
+                const webFastFunc = jQuery(this).attr(`webfast-func`);
                 web.fast.sendMessage(`socket.api.${webAction}`,{
                     ts : Date.now(),
                     ell : jQuery(this).attr(`id`),
-                    other : other
+                    other : other,
+                    action : action,
+                    webAction : webAction,
+                    function : webFastFunc
                 })
             break;
             case "BUTTON":
