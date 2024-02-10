@@ -3,7 +3,12 @@
     "start"     :       {
         "object"  :   {
             "text" : "Test First Title : {{TEST}}",
-            "image" :   "{{URL}}app/content/images/block.png"
+            "image" :   "{{URL}}app/content/images/block.png",
+            "buttons" : [
+                [
+                    { "text": "Test Callback", "callback_data": "other" }
+                ]
+            ]
         },
         "match"    :   {
             "data"  :   [{

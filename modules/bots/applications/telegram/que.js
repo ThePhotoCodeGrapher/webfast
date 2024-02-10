@@ -112,7 +112,9 @@ module.exports = {
                     // Send command when wrong // or buttons like reset button
                     // check what to do
                     // check if stop
-                   
+                    if (middleValue.text == `reset` || middleValue.text `stop`) {
+                        delete program.modules.telegram.functions.que.line[chatID];
+                    }
                     return false;
                 } else {
                     console.log(`Matched`);

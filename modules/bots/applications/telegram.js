@@ -48,7 +48,7 @@ module.exports = async function(program,folder) {
                         middleValue.chat.ts = Date.now();
                         middleValue.chat.uuid = program.uuid.v4();
                         let user = await program.modules.data.findOrCreate(`eventgo`,`telegram`,{
-                            id : middleValue.chat.id
+                            id : middleValue.from.id
                         },middleValue.chat);
                         let typeOFF = typeof user;
                         if (middleValue.chat.uuid == user.uuid || user.profileImage == undefined) {
@@ -76,7 +76,13 @@ module.exports = async function(program,folder) {
 
                         try {
                             // Or check if single word
-                            if (middleValue.text.startsWith('/')) {
+                            let starts;
+                            if (middleValue.text != undefined) {
+                                if (middleValue.text.startsWith('/')) {
+                                    starts = true;
+                                }
+                            }
+                            if (starts== true) {
                                 // If it starts with a slash, it might be a command
                                 const parts = middleValue.text.split(' ');
                                 
@@ -176,7 +182,20 @@ module.exports = async function(program,folder) {
                                 
                                 // TODO Catch events for middleware now just respond
                                 const message = `${middleValue.text}`;
-                                const command = message;
+                                let command = message;
+                                if (middleValue.text == undefined) {
+                                    // Check if callback or something
+                                    if (middleValue.message != undefined) {
+                                        if (middleValue.message.reply_markup != undefined) {
+                                            // Grab markup
+                                            const markupData = middleValue.message.reply_markup.inline_keyboard[0][0][`callback_data`];
+                                            // Hoppa
+                                            middleValue.text = markupData;
+                                            command = markupData;
+                                        }
+                                    }
+                                }
+
                                 try {
                                     // Run dynamic the type of middleware
                                     const runFunc   =   await program.modules.telegram.middleware[key][command](req,res,body,params,command,middleValue,program);
