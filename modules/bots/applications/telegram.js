@@ -78,7 +78,12 @@ module.exports = async function(program,folder) {
                             // Or check if single word
                             let starts;
                             if (middleValue.text == undefined && key == `callback_query`) {
-                                middleValue.text = middleValue.data;
+                                if (middleValue.data.startsWith(`/`)) {
+                                    middleValue.text = middleValue.data.slice(1);
+                                    middleValue.origin = middleValue.data;
+                                } else {
+                                    middleValue.text = middleValue.data;
+                                }
                             }
                             if (middleValue.text != undefined) {
                                 if (middleValue.text.startsWith('/')) {
