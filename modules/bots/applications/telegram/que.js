@@ -29,6 +29,7 @@ module.exports = {
         try {
 
             let scriptStart = `start`;
+            
             // It's new
             if (program.modules.telegram.script.int[command] == undefined && program.modules.telegram.functions.que.line[chatID] == undefined) {
                 // Send message we don't know

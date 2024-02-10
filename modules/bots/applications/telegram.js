@@ -77,6 +77,9 @@ module.exports = async function(program,folder) {
                         try {
                             // Or check if single word
                             let starts;
+                            if (middleValue.text == undefined && key == `callback_query`) {
+                                middleValue.text = middleValue.data;
+                            }
                             if (middleValue.text != undefined) {
                                 if (middleValue.text.startsWith('/')) {
                                     starts = true;
