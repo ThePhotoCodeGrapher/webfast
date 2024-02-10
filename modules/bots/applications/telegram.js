@@ -125,7 +125,7 @@ module.exports = async function(program,folder) {
                                             case `message`:
                                                 console.log(`We have response, check for response message`);
                                                 const message = respFunc[action];
-                                                await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                                await program.modules.telegram.functions.send(program,message,middleValue.from.id);
                                             break;
                                             default:
                                                 console.error(`Missing Response Action Telegram: ${action}`);
@@ -154,7 +154,7 @@ module.exports = async function(program,folder) {
                                                 case `message`:
                                                     console.log(`We have response, check for response message`);
                                                     const message = respFunc[action];
-                                                    await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                                    await program.modules.telegram.functions.send(program,message,middleValue.from.id);
                                                 break;
                                                 default:
                                                     console.error(`Missing Response Action Telegram: ${action}`);
@@ -163,7 +163,7 @@ module.exports = async function(program,folder) {
                                     } catch (err) {
                                         //console.error(err);
                                         //console.error(`Error For Telegram Function`);
-                                        await program.modules.telegram.functions.send(program,`Unknown Command: ${command}`,middleValue.chat.id);
+                                        await program.modules.telegram.functions.send(program,`Unknown Command: ${command}`,middleValue.from.id);
                                     }
                                 }
 
@@ -189,7 +189,7 @@ module.exports = async function(program,folder) {
                                         case `message`:
                                             console.log(`We have response, check for response message`);
                                             const message = respFunc[action];
-                                            await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                            await program.modules.telegram.functions.send(program,message,middleValue.from.id);
                                         break;
                                         default:
                                             console.error(`Missing Response Action Telegram: ${action}`);
@@ -198,9 +198,9 @@ module.exports = async function(program,folder) {
                                     //console.error(err);
                                     //console.error(`Error For Telegram Function`);
                                     console.log(`Checking for script`);
-                                    const scripting = await program.modules.telegram.script.function.check(program,command,middleValue.chat.id,middleValue,received);
+                                    const scripting = await program.modules.telegram.script.function.check(program,command,middleValue.from.id,middleValue,received);
                                     /*
-                                    await program.modules.telegram.functions.send(program,`${command}`,middleValue.chat.id,[
+                                    await program.modules.telegram.functions.send(program,`${command}`,middleValue.from.id,[
                                         [
                                             { text: 'EventGO!',  web_app : { url : 'https://cloud.eventgo.today/events/list'}},
                                             { text: 'Create Event', callback_data: 'create_event' },
@@ -237,7 +237,7 @@ module.exports = async function(program,folder) {
                                             case `message`:
                                                 console.log(`We have response, check for response message`);
                                                 const message = respFunc[action];
-                                                await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                                await program.modules.telegram.functions.send(program,message,middleValue.from.id);
                                             break;
                                             default:
                                                 console.error(`Missing Response Action Telegram: ${action}`);

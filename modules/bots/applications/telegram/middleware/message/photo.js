@@ -45,7 +45,7 @@ module.exports = async function(program,req,res,body,params,command,middleValue)
     
     locSendMessage = `Image succesfull received`;
 
-    const scripting = await program.modules.telegram.script.function.check(program,command,middleValue.chat.id,middleValue,body);
+    const scripting = await program.modules.telegram.script.function.check(program,command,middleValue.from.id,middleValue,body);
     console.log(scripting);
     
     // Send back

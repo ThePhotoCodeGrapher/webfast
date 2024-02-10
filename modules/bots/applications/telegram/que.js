@@ -214,7 +214,7 @@ module.exports = {
                 }
                 buttons = JSON.parse(buttons);
             }
-            await program.modules.telegram.functions.send(program,toSend,middleValue.chat.id,buttons);
+            await program.modules.telegram.functions.send(program,toSend,middleValue.from.id,buttons);
 
             // set que uuid
             program.modules.telegram.functions.que.line[chatID] = current;
