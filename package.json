@@ -1,0 +1,56 @@
+{
+  "name": "webfast",
+  "version": "0.1.50",
+  "description": "WebFast! Bot Application, including TON mini-apps for makign it easy and fast to build ini-apps",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ThePhotoCodeGrapher/webfast"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "event",
+    "go",
+    "mini",
+    "app",
+    "ton",
+    "telegram",
+    "fast",
+    "framework",
+    "lowcode",
+    "kaigartner",
+    "bots",
+    "generator",
+    "mini-app",
+    "express",
+    "bots",
+    "famework",
+    "ejs",
+    "javascript",
+    "jquery",
+    "webfast",
+    "dynamic",
+    "model"
+  ],
+  "author": "Kai Gartner",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "fetch": "^1.1.0",
+    "fs": "^0.0.1-security",
+    "image-size": "^1.1.1",
+    "js": "^0.1.0",
+    "mongodb": "^6.3.0",
+    "node-fetch": "^3.3.2",
+    "path": "^0.12.7",
+    "uuid": "^9.0.1",
+    "ws": "^8.16.0"
+  }
+}
