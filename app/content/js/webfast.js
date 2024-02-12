@@ -159,7 +159,7 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
         };
 
         ws.onmessage = (event) => {
-            console.log('Received:', event.data);
+            //console.log('Received:', event.data);
             // Handle received data
             // Check if type user then we will walk through the data to set the data for the user
             const json = JSON.parse(event.data);
