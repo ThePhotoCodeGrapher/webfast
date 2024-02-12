@@ -124,6 +124,37 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
             console.log('WebSocket connected');
             // Start other things (e.g., send initial data)
             web.fast.que.state = true;
+
+            //alert(web.fast.tools.isMobile);
+            function arraySend() {
+                try {
+                    if (web.fast.user != undefined || window.Telegram.WebApp.initData == ``) {
+                        let arraySend = [];
+                        jQuery(`[webfast-get]`).each(async function(){
+                            const type =  jQuery(this).attr(`webfast-get`);
+                            let  id = jQuery(this).attr(`id`);
+                            if (id == undefined) {
+                                id = await web.fast.tools.generateRandomId(8); // Generate a random ID of length 8
+                            }
+                            arraySend.push({
+                                id : id,
+                                type : type
+                            })
+                        })
+                        console.log(`Send Array`,arraySend);
+                        web.fast.tools.on.connect(arraySend);
+                    } else {
+                        throw new Error(`error some send`);
+                    }
+                } catch (err) {
+                    console.error(`Try again`);
+                    setTimeout(function(){
+                        arraySend();
+                    },200);
+                }
+            }
+            // send array
+            arraySend();
             
         };
 
@@ -135,6 +166,7 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
             if (json.type == `user`) {
                 // We have user data
                 console.log(`Set User Data`);
+                web.fast.user = json;
                 // Now go Through to set all data
                 // Get all webfast client
                 jQuery(`[webfast-client]`).each(function(){
