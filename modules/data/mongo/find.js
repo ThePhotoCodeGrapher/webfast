@@ -1,8 +1,4 @@
 const { MongoClient } = require('mongodb');
-<<<<<<< HEAD
-module.exports = function(db,collection) {
-    // Ensure the MongoDB connection string is provided
-=======
 module.exports = async function(db,collection,query,one = false,array) {
     // Ensure the MongoDB connection string is provided
     const program = array.program;
@@ -10,14 +6,11 @@ module.exports = async function(db,collection,query,one = false,array) {
     if (array.function != undefined) {
         callback = array.function;
     }
->>>>>>> 2c968b8 (rebase)
     if (!process.env.mongo) {
         console.error('MongoDB connection string not provided. Set process.env.mongo.');
         process.exit(1);
     }
 
-<<<<<<< HEAD
-=======
     function routeExists(path) {
         return program.express.app._router.stack.some(layer => {
             if (layer.route) {
@@ -27,7 +20,6 @@ module.exports = async function(db,collection,query,one = false,array) {
         });
     }
 
->>>>>>> 2c968b8 (rebase)
     // Define the MongoDB URI
     const uri = process.env.mongo;
 
@@ -36,18 +28,10 @@ module.exports = async function(db,collection,query,one = false,array) {
     const collectionName = collection;
 
     // Define the query you want to perform
-<<<<<<< HEAD
-    const query = { /* Your query goes here */ };
-
-    async function main() {
-    // Create a new MongoClient
-    const client = new MongoClient(uri);
-=======
 
     async function main() {
     // Create a new MongoClient
     const client = await new MongoClient(uri);
->>>>>>> 2c968b8 (rebase)
 
     try {
         // Connect to the MongoDB server
@@ -55,19 +39,6 @@ module.exports = async function(db,collection,query,one = false,array) {
         console.log('Connected to the MongoDB server');
 
         // Select the database
-<<<<<<< HEAD
-        const database = client.db(dbName);
-
-        // Select the collection
-        const collection = database.collection(collectionName);
-
-        // Perform the find query
-        const result = await collection.find(query).toArray();
-
-        // Process the result
-        console.log('Query result:', result);
-        return result;
-=======
         const database = await client.db(dbName);
 
         // Select the collection
@@ -150,7 +121,6 @@ module.exports = async function(db,collection,query,one = false,array) {
         } else {
             return result;
         }
->>>>>>> 2c968b8 (rebase)
     } finally {
         // Close the MongoClient
         await client.close();
@@ -159,10 +129,6 @@ module.exports = async function(db,collection,query,one = false,array) {
     }
 
     // Execute the main function
-<<<<<<< HEAD
-    main().catch(console.error);
-=======
     await main().catch(console.error);
->>>>>>> 2c968b8 (rebase)
 
 }

@@ -32,33 +32,6 @@ module.exports = {
     },
 
     downloadBuffer: async function (filename, dbName = 'media') {
-<<<<<<< HEAD
-        await client.connect();
-
-        const db = client.db(dbName);
-        const bucket = new GridFSBucket(db);
-
-        const downloadStream = bucket.openDownloadStreamByName(filename);
-
-        return new Promise((resolve, reject) => {
-            const chunks = [];
-
-            // Accumulate chunks as they arrive
-            downloadStream.on('data', (chunk) => {
-                chunks.push(chunk);
-            });
-
-            // Resolve with the concatenated buffer and metadata when the download is complete
-            downloadStream.on('end', () => {
-                const buffer = Buffer.concat(chunks);
-                const metadata = downloadStream.s.file.metadata;
-                resolve({ buffer, metadata });
-            });
-
-            downloadStream.on('error', reject);
-        });
-    }
-=======
         try {
             await client.connect();
             const db = client.db(dbName);
@@ -106,5 +79,4 @@ module.exports = {
         }
     }
     
->>>>>>> 2c968b8 (rebase)
 };

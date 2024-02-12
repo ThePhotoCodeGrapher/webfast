@@ -14,11 +14,7 @@ module.exports = {
         try {
             await client.connect();
             const db = client.db('eventgo');
-<<<<<<< HEAD
-            const collection = db.collection(collectionName);
-=======
             const collection = await db.collection(collectionName);
->>>>>>> 2c968b8 (rebase)
     
             // Check if the field is an array in the existing document
             const existingDocument = await collection.findOne(search);
@@ -26,27 +22,16 @@ module.exports = {
     
             if (isFieldArray) {
                 // Field is an array, push the data
-<<<<<<< HEAD
-                await collection.updateOne({}, { $addToSet: { [fieldName]: { $each: data } } });
-            } else {
-                // Field is not an array, save the array
-                await collection.updateOne({}, { $set: { [fieldName]: data } }, { upsert: true });
-=======
                 await collection.updateOne(search, { $addToSet: { [fieldName]: { $each: data } } });
             } else {
                 // Field is not an array, save the array
                 await collection.updateOne(search, { $set: { [fieldName]: data } }, { upsert: true });
->>>>>>> 2c968b8 (rebase)
             }
     
             console.log('Data added to the collection successfully.');
         } catch (error) {
             console.error('Error:', error.message);
         } finally {
-<<<<<<< HEAD
-            await client.close();
-=======
->>>>>>> 2c968b8 (rebase)
         }
     }    
 }

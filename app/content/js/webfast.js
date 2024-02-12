@@ -124,13 +124,6 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
             console.log('WebSocket connected');
             // Start other things (e.g., send initial data)
             web.fast.que.state = true;
-<<<<<<< HEAD
-        };
-
-        ws.onmessage = (event) => {
-            //console.log('Received:', event.data);
-            // Handle received data
-=======
             
         };
 
@@ -181,7 +174,6 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
                 }
             }
 
->>>>>>> 2c968b8 (rebase)
             web.fast.que.state = Date.now();
             web.fast.receive(`socket`,event.data); // Placeholder for processing response
         };
