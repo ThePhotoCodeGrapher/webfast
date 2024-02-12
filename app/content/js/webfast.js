@@ -124,11 +124,64 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
             console.log('WebSocket connected');
             // Start other things (e.g., send initial data)
             web.fast.que.state = true;
+<<<<<<< HEAD
         };
 
         ws.onmessage = (event) => {
             //console.log('Received:', event.data);
             // Handle received data
+=======
+            
+        };
+
+        ws.onmessage = (event) => {
+            console.log('Received:', event.data);
+            // Handle received data
+            // Check if type user then we will walk through the data to set the data for the user
+            const json = JSON.parse(event.data);
+            if (json.type == `user`) {
+                // We have user data
+                console.log(`Set User Data`);
+                // Now go Through to set all data
+                // Get all webfast client
+                jQuery(`[webfast-client]`).each(function(){
+                    // Get type
+                    const clientType = jQuery(this).attr(`webfast-client`);
+                    console.log(`Client Type`);
+                    // Check split
+                    const split = clientType.replace(/ /g,``).split(`||`);
+
+                    // set check
+                    let setted = false;
+                    for (let s in split) {
+                        // Get value
+                        let getValue = split[s];
+                        // Get value from json.data
+                        if (json.data[getValue] != undefined && setted == false) {
+                            const toSetValue = json.data[getValue];
+                            console.log(`Set Value`,toSetValue);
+                            jQuery(this).html(toSetValue)
+                            setted = true;
+                        }
+                    }
+                })
+
+                if (json.data.images != undefined) {
+                    console.log(`Set Images`,json.data.images);
+                    const oneImage = json.data.images[json.data.images.length-1];
+                    console.log(oneImage);
+                    jQuery(`[webfast-client="image"]`).each(function(){
+                        console.log(`Setted`);
+                        jQuery(this).css({
+                            'background-image': `url(${oneImage})`,
+                            'background-size': 'cover',
+                            'background-position': 'center'
+                        });
+                    });
+                }
+            }
+
+>>>>>>> 2c968b8 (rebase)
             web.fast.que.state = Date.now();
             web.fast.receive(`socket`,event.data); // Placeholder for processing response
         };

@@ -62,7 +62,11 @@ module.exports = {
     downloadAndConvertToBase64 : async (program, photoURL, callback,data) => {
         try {
             // Use wget to download the image
+<<<<<<< HEAD
             const { stdout, stderr } = await program.exec(`${program.set.wget} -O - ${photoURL}`, { encoding: 'buffer' });
+=======
+            const { stdout, stderr } = await program.exec(`${program.set.wget} -O - "${photoURL}"`, { encoding: 'buffer' });
+>>>>>>> 2c968b8 (rebase)
     
             // Check if the download was successful
             const errBuf = Buffer.from(stderr);

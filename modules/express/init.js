@@ -224,7 +224,7 @@ module.exports = async function (program) {
   const wss = new WebSocket.Server({ port: PORT });
 
  
-  wss.on('connection', (ws, req) => {
+  wss.on('connection', async (ws, req) => {
     console.log(`Socket Connected`);
 
     // Generate a unique ID for the WebSocket connection
@@ -283,13 +283,79 @@ module.exports = async function (program) {
         console.error('Received data has been tampered with');
     }
 
-    console.log(parsedQuery);
 
     // Store the WebSocket connection with its ID in the map
     clients.set(clientId, ws);
 
     // Send the client ID to the connected client
-    ws.send(JSON.stringify({ type: 'clientId', id: clientId, params: parsedQuery }));
+    let getUser;
+    if (parsedQuery.user != undefined) {
+        // Get user
+        const userJSON = JSON.parse(JSON.parse(parsedQuery.user));
+        getUser = await program.modules.data.find(`eventgo`,`telegram`,{
+            id : userJSON.id
+        },true,{image:true,program,async function(program,json){
+            // Get firs timage
+            console.log(`User JSON`);
+            let image;
+            let allImages = [];
+            if (json.images != undefined) {
+                image = json.images[Object.keys(json.images)[0]];
+                
+                // Create path if not exists
+                async function routeExists(path) {
+                    return program.express.app._router.stack.some(layer => {
+                        if (layer.route) {
+                            return layer.route.path === path;
+                        }
+                        return false;
+                    });
+                }
+
+                for (const image in json.images) {
+                    console.log(`Set image url's`);
+
+                    const imagePath = `/user/dynamic/image/${image}.${json.images[image].meta.type}`;
+                    const routeCheck = await routeExists(imagePath);
+                    const fullPath = `${process.env.url}${imagePath.slice(1)}`;
+                    allImages.push(fullPath);
+                    if (!routeCheck) {
+                        // Create route
+                        const fullImageData = json.images[image];
+                        program.express.app.get(imagePath, async (req,res) => {
+                            console.log(`Request for`,imagePath);
+                            // set headers
+                            res.set('Content-Type', `image/${fullImageData.meta.type}`);
+                            res.send(fullImageData.buffer);
+                        })
+                    }
+                }
+            }
+            // Now we have the image data
+            console.log(`Image Data`);
+            // Further more we want to send some data 
+            const sendKeys = [`id`,`first_name`,`username`,`uuid`];
+
+            // Crerate little loop for the data to be send in json format to be processed 
+            let sendData = {};
+            for (let sd  in sendKeys) {
+                let key = sendKeys[sd];
+                // Get object
+                if (json[key] != undefined) {
+                    sendData[key] = json[key];
+                }
+            }
+            console.log(`Preparing for sending`);
+            sendData.images = allImages;
+
+            // TODO ADD OTHER DATA
+            //program.express.process.socket.api.
+            // TODO location
+            ws.send(JSON.stringify({ type: 'user', clientId: clientId, data : sendData }));
+            
+        }});
+    }
+    //ws.send(JSON.stringify({ type: 'clientId', id: clientId, params: parsedQuery }));
 
     // Set up a ping interval to keep the connection alive
     const pingInterval = setInterval(() => {
