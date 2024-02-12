@@ -73,6 +73,43 @@ module.exports = async function(program,folder) {
                         
 
                         console.log(`We have received message`,received);
+                        // Check if left or not
+                        if (received.message.left_chat_member != undefined  || received.message.left_chat_participant != undefined) {
+                            console.log(`Someone left so update the databate that they left `);
+                            const member = received.message.left_chat_participant;
+
+                            // return
+                            return true;
+                        }
+
+                        // When signup
+                        if (received.message.new_chat_members != undefined) {
+                            // Return because we don't need to do anything
+                            // Loop THrough
+                            for (let chatI in received.message.new_chat_members) {
+                                const member = received.message.new_chat_members[chatI];
+                                const id = member.id;
+                                console.log(`Something with member`);
+                                
+                                const updated = await program.modules.data.update(`eventgo`,`telegram`,{
+                                    id : id
+                                },{
+                                    group : `eventgocommunity`
+                                });
+                                console.log(`Updated`);
+                            }
+
+                            // Send message to user that they can continue with their setup
+                            
+                            return true;
+                        }
+
+                        // Else when group
+                        if (received.message.chat.username == `eventgocommunity` || received.message.chat.type == `supergroup`) {
+                            // This is when community or supergroup
+                            console.error(`Super Group Handler Need TODO`);
+                            return true;
+                        }
 
                         try {
                             // Or check if single word
