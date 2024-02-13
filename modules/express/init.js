@@ -377,7 +377,7 @@ module.exports = async function (program) {
 
     // WebSocket on message event
     ws.on('message', async (message) => {
-        console.log(`Received message from ${clientId}: ${message}`);
+        //console.log(`Received message from ${clientId}: ${message}`);
 
         try {
             // Check for function

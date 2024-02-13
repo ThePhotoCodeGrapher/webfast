@@ -162,6 +162,7 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
             //console.log('Received:', event.data);
             // Handle received data
             // Check if type user then we will walk through the data to set the data for the user
+            try {
             const json = JSON.parse(event.data);
             if (json.type == `user`) {
                 // We have user data
@@ -208,6 +209,10 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
 
             web.fast.que.state = Date.now();
             web.fast.receive(`socket`,event.data); // Placeholder for processing response
+            } catch (err) {
+                console.error(`Error Receiving`);
+                console.error(event);
+            }
         };
 
         ws.onclose = (event) => {
