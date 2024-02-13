@@ -51,6 +51,13 @@ module.exports = async function(program,folder) {
                             id : middleValue.from.id
                         },middleValue.chat);
                         let typeOFF = typeof user;
+                        if (user._id != undefined && middleValue.new_chat_member != undefined) {
+                            if (middleValue.new_chat_member.id == user.id) {
+                                res.send(`OK`);
+                                return res.status(200);
+                            }
+                        }
+
                         if (middleValue.chat.uuid == user.uuid || user.profileImage == undefined) {
                             user.new = true;
 
@@ -74,41 +81,58 @@ module.exports = async function(program,folder) {
 
                         console.log(`We have received message`,received);
                         // Check if left or not
-                        if (received.message.left_chat_member != undefined  || received.message.left_chat_participant != undefined) {
-                            console.log(`Someone left so update the databate that they left `);
-                            const member = received.message.left_chat_participant;
+                        if (received.message != undefined){
+                            if (received.message.left_chat_member != undefined  || received.message.left_chat_participant != undefined) {
+                                console.log(`Someone left so update the databate that they left `);
+                                const member = received.message.left_chat_participant;
 
-                            // return
-                            return true;
-                        }
-
-                        // When signup
-                        if (received.message.new_chat_members != undefined) {
-                            // Return because we don't need to do anything
-                            // Loop THrough
-                            for (let chatI in received.message.new_chat_members) {
-                                const member = received.message.new_chat_members[chatI];
-                                const id = member.id;
-                                console.log(`Something with member`);
-                                
-                                const updated = await program.modules.data.update(`eventgo`,`telegram`,{
-                                    id : id
-                                },{
-                                    group : `eventgocommunity`
-                                });
-                                console.log(`Updated`);
+                                // return
+                                return true;
                             }
 
-                            // Send message to user that they can continue with their setup
-                            
-                            return true;
-                        }
+                            // When signup
+                            if (received.message.new_chat_members != undefined) {
+                                // Return because we don't need to do anything
+                                // Loop THrough
+                                for (let chatI in received.message.new_chat_members) {
+                                    const member = received.message.new_chat_members[chatI];
+                                    const id = member.id;
+                                    console.log(`Something with member`);
+                                    
+                                    const updated =await program.modules.data.update(`eventgo`,`telegram`,{
+                                        id : id
+                                    },{
+                                        $set: {
+                                            group : Date.now()
+                                        }
+                                    });
+                                    console.log(`Updated`);
 
-                        // Else when group
-                        if (received.message.chat.username == `eventgocommunity` || received.message.chat.type == `supergroup`) {
-                            // This is when community or supergroup
-                            console.error(`Super Group Handler Need TODO`);
-                            return true;
+                                    // Send notification to 
+                                    if (updated.acknowledged) {
+                                        // Send Message That is subscribed to person and welcome in group
+                                        // Say hey all welcome to 
+                                        if (member.first_name != undefined) {
+                                            // Send here message to group
+                                            const message = `Hey <b>${member.first_name}</b> 🎉\nWelcome to the <b>EventGO! Community</b>, here you will receive updates about new events and you are able to chat with others, enjoy and feel free to ask anything.`;
+                                            const send = await program.modules.telegram.functions.send(program,message,middleValue.chat.id);
+                                        }
+
+                                        // Send here message to member that he joined and if he want to continue his 
+                                    }
+                                }
+
+                                // Send message to user that they can continue with their setup
+                                res.status(`OK`);
+                                res.status(200);
+                            }
+
+                            // Else when group
+                            if (received.message.chat.username == `eventgocommunity` || received.message.chat.type == `supergroup`) {
+                                // This is when community or supergroup
+                                console.error(`Super Group Handler Need TODO`);
+                                return true;
+                            }
                         }
 
                         try {

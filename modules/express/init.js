@@ -389,7 +389,7 @@ module.exports = async function (program) {
             // Check if function is running in program modules that you can add in the init scirpt when using remote
             if (program.express.process != undefined) {
                 try {
-                    let resp = await program.express.process[split[0]][split[1]][split[2]](program,ws,json,data,path);
+                    let resp = await program.express.process[split[0]][split[1]][split[2]](program,ws,json,data,path,clientId);
                     if (resp != false) {
                         ws.send(JSON.stringify(resp));
                     }
