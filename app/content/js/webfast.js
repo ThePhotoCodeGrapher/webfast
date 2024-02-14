@@ -125,34 +125,13 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
             console.log('WebSocket connected');
             // Start other things (e.g., send initial data)
             web.fast.que.state = true;
-
             //alert(web.fast.tools.isMobile);
-            function arraySend() {
+            function arraySendFunction() {
                 try {
-                    if (web.fast.user != undefined || window.Telegram.WebApp.initData == ``) {
+                    if (web.fast.que.state == false || window.Telegram.WebApp.initData == ``) {
                         let arraySend = [];
-                        jQuery(`[webfast-get]`).each(async function(){
-                            const type =  jQuery(this).attr(`webfast-get`);
-                            let  id = jQuery(this).attr(`id`);
-                            if (id == undefined) {
-                                var generateRandomId = async function(length) {
-                                    var result = '';
-                                    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                                    var charactersLength = characters.length;
-                                    for (var i = 0; i < length; i++) {
-                                        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                                    }
-                                    return result;
-                                };
-                                id = await generateRandomId(8); // Generate a random ID of length 8
-                            }
-                            arraySend.push({
-                                id : id,
-                                type : type
-                            })
-                        })
-                        console.log(`Send Array`,arraySend);
-                        web.fast.tools.on.connect(arraySend);
+                        //alert(`Connected`);
+                      
                         } else {
                             if (countedError < 3) {
                                 console.error(`Tried 10 times`);
@@ -163,13 +142,14 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
                             
                         }
                 } catch (err) {
+                    alert(`err`);
                     setTimeout(function(){
-                        arraySend();
+                        arraySendFunction();
                     },200);
                 }
             }
             // send array
-            arraySend();
+            arraySendFunction();
             
         };
 
@@ -183,6 +163,7 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
                 // We have user data
                 console.log(`Set User Data`);
                 web.fast.user = json;
+
                 // Now go Through to set all data
                 // Get all webfast client
                 jQuery(`[webfast-client]`).each(function(){
@@ -224,6 +205,32 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
 
             web.fast.que.state = Date.now();
             web.fast.receive(`socket`,event.data); // Placeholder for processing response
+
+            let arraySend = [];
+            jQuery(`[webfast-get]`).each(async function(){
+                    const type =  jQuery(this).attr(`webfast-get`);
+                    let  id = jQuery(this).attr(`id`);
+                    if (id == undefined) {
+                        var generateRandomId = async function(length) {
+                            var result = '';
+                            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                            var charactersLength = characters.length;
+                            for (var i = 0; i < length; i++) {
+                                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                            }
+                            return result;
+                        };
+                        id = await generateRandomId(8); // Generate a random ID of length 8
+                    }
+                    arraySend.push({
+                        id : id,
+                        type : type
+                    })
+                })
+                console.log(`Send Array`,arraySend);
+                web.fast.tools.on.connect(arraySend);
+            web.fast.que.state = true;
+
             } catch (err) {
                 console.error(`Error Receiving`);
                 console.error(event);
