@@ -57,7 +57,7 @@ module.exports = async function(program,message,id,buttons) {
 
     // Save to send so we can have the id and do things
     madeRequest.result.uuid = program.uuid.v4();
-    let saveSend = await program.modules.data.findOrCreate(`eventgo`,`send`,{
+    let saveSend = await program.modules.data.findOrCreate(process.env.dbName,`send`,{
         message_id : madeRequest.result.message_id
     },madeRequest.result);
 

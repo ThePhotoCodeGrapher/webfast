@@ -292,7 +292,7 @@ module.exports = async function (program) {
     if (parsedQuery.user != undefined) {
         // Get user
         const userJSON = JSON.parse(JSON.parse(parsedQuery.user));
-        getUser = await program.modules.data.find(`eventgo`,`telegram`,{
+        getUser = await program.modules.data.find(process.env.dbName,`telegram`,{
             id : userJSON.id
         },true,{image:true,program,async function(program,json){
             // Get firs timage

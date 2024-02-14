@@ -47,7 +47,7 @@ module.exports = async function(program,folder) {
                         }
                         middleValue.chat.ts = Date.now();
                         middleValue.chat.uuid = program.uuid.v4();
-                        let user = await program.modules.data.findOrCreate(`eventgo`,`telegram`,{
+                        let user = await program.modules.data.findOrCreate(process.env.dbName,`telegram`,{
                             id : middleValue.from.id
                         },middleValue.chat);
                         let typeOFF = typeof user;
@@ -71,7 +71,7 @@ module.exports = async function(program,folder) {
 
                         // Find or create to add message to db
                         body.uuid = program.uuid.v4();
-                        let received = await program.modules.data.findOrCreate(`eventgo`,`received`,{
+                        let received = await program.modules.data.findOrCreate(process.env.dbName,`received`,{
                             update_id : body.update_id
                         },body);
                         
@@ -99,7 +99,7 @@ module.exports = async function(program,folder) {
                                     const id = member.id;
                                     console.log(`Something with member`);
                                     
-                                    const updated =await program.modules.data.update(`eventgo`,`telegram`,{
+                                    const updated =await program.modules.data.update(process.env.dbName,`telegram`,{
                                         id : id
                                     },{
                                         $set: {

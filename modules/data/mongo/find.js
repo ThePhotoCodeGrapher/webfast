@@ -55,7 +55,7 @@ module.exports = async function(db,collection,query,one = false,array) {
 
         // Check if profile image to get it from db
         if (result.profileImage != undefined && array.image == true) {
-            const profileImage = await program.modules.data.file.downloadBuffer(result.profileImage,`eventgo`);
+            const profileImage = await program.modules.data.file.downloadBuffer(result.profileImage,process.env.dbName);
 
             // Set in dynamic routing for serving
             let sizeMeta = {};
