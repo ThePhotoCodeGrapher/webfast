@@ -115,6 +115,7 @@ if (telegram.initData == ``) {
 
 const socketURL = `wss://${webfastSocket.replace(`https://`,``)}socket.io/?qbt=${setData}`;
 
+let countedError = 0;
 // Assuming you have a variable `socketURL` containing your WebSocket URL
 web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
     web.fast.createWebSocket = function(socketURL, maxRetries, retries) {
@@ -134,7 +135,16 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
                             const type =  jQuery(this).attr(`webfast-get`);
                             let  id = jQuery(this).attr(`id`);
                             if (id == undefined) {
-                                id = await web.fast.tools.generateRandomId(8); // Generate a random ID of length 8
+                                var generateRandomId = async function(length) {
+                                    var result = '';
+                                    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                                    var charactersLength = characters.length;
+                                    for (var i = 0; i < length; i++) {
+                                        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                                    }
+                                    return result;
+                                };
+                                id = await generateRandomId(8); // Generate a random ID of length 8
                             }
                             arraySend.push({
                                 id : id,
@@ -143,11 +153,16 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
                         })
                         console.log(`Send Array`,arraySend);
                         web.fast.tools.on.connect(arraySend);
-                    } else {
-                        throw new Error(`error some send`);
-                    }
+                        } else {
+                            if (countedError < 3) {
+                                console.error(`Tried 10 times`);
+                            } else {
+                                console.error(`Try again`);
+                                throw new Error(`error some send`);
+                            }
+                            
+                        }
                 } catch (err) {
-                    console.error(`Try again`);
                     setTimeout(function(){
                         arraySend();
                     },200);
