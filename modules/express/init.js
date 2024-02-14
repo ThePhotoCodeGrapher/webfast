@@ -10,7 +10,7 @@ module.exports = async function (program) {
   const bodyParser = require('body-parser');
   const WebSocket = require('ws');
   const crypto = require(`crypto`)
-  const port = 1221;
+  const port = process.env.port;
   const basePath = `/api`;
 
   const app = express();
