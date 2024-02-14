@@ -11,15 +11,6 @@ module.exports = async function(db,collection,query,one = false,array) {
         process.exit(1);
     }
 
-    function routeExists(path) {
-        return program.express.app._router.stack.some(layer => {
-            if (layer.route) {
-                return layer.route.path === path;
-            }
-            return false;
-        });
-    }
-
     // Define the MongoDB URI
     const uri = process.env.mongo;
 
@@ -52,6 +43,16 @@ module.exports = async function(db,collection,query,one = false,array) {
         }
         // Process the result
         console.log('Query result:', result);
+
+
+        async function routeExists(path) {
+            return program.express.app._router.stack.some(layer => {
+                if (layer.route) {
+                    return layer.route.path === path;
+                }
+                return false;
+            });
+        }
 
         // Check if profile image to get it from db
         if (result.profileImage != undefined && array.image == true) {
@@ -129,6 +130,6 @@ module.exports = async function(db,collection,query,one = false,array) {
     }
 
     // Execute the main function
-    await main().catch(console.error);
+    return await main().catch(console.error);
 
 }
