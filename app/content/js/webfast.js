@@ -129,7 +129,7 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
             //alert(web.fast.tools.isMobile);
             function arraySend() {
                 try {
-                    if (web.fast.user != undefined && web.fast.tools.inial != undefined || window.Telegram.WebApp.initData == `` && web.fast.tools.inial != undefined) {
+                    if (web.fast.user != undefined && web.fast.inial == undefined || window.Telegram.WebApp.initData == `` && web.fast.inial == undefined) {
                         let arraySend = [];
                         jQuery(`[webfast-get]`).each(async function(){
                             const type =  jQuery(this).attr(`webfast-get`);
