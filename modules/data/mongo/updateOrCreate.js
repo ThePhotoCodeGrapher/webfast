@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-module.exports = async function (db, collection, condition, dataToUpdate) {
+module.exports = async function (db, collection, condition, dataToUpdate,options = { upsert: true }) {
     // Ensure the MongoDB connection string is provided
     if (!process.env.mongo) {
         console.error('MongoDB connection string not provided. Set process.env.mongo.');
@@ -30,7 +30,7 @@ module.exports = async function (db, collection, condition, dataToUpdate) {
             const collection = database.collection(collectionName);
 
             // Perform the update or create operation
-            const result = await collection.updateOne(condition, { $set: dataToUpdate }, { upsert: true });
+            const result = await collection.updateOne(condition, { $set: dataToUpdate }, options);
 
             // If a document was upserted, retrieve the upserted document
             const upsertedDocument = result.upsertedId

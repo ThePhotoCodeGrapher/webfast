@@ -176,7 +176,7 @@ module.exports = async function (program) {
         // Now read the dir
         // Create app.get
         try {
-            const theRoute = `/inc/${dirItem}/*`;
+            const theRoute = `git pu${dirItem}/*`;
             app.get(theRoute, async (req, res) => {
                 const params = req.params;
 

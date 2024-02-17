@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-module.exports = async function(db, collection, condition, dataToCreate) {
+module.exports = async function(db, collection, condition, dataToCreate,options = {}) {
     // Ensure the MongoDB connection string is provided
     if (!process.env.mongo) {
         console.error('MongoDB connection string not provided. Set process.env.mongo.');
@@ -30,7 +30,7 @@ module.exports = async function(db, collection, condition, dataToCreate) {
             const collection = database.collection(collectionName);
 
             // Check if a document exists based on the condition
-            const existingDocument = await collection.findOne(condition);
+            const existingDocument = await collection.findOne(condition,options);
 
             if (existingDocument) {
                 // If a document exists, return it
@@ -43,7 +43,7 @@ module.exports = async function(db, collection, condition, dataToCreate) {
 
                 if (result.acknowledged === true) {
                     console.log('New document created:', result.insertedId);
-                    const existingDocument = await collection.findOne(condition);
+                    const existingDocument = await collection.findOne(condition,options);
                     return dataToCreate;
                 } else {
                     console.error('Failed to create a new document.');

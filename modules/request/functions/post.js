@@ -1,11 +1,13 @@
-module.exports = async function(program, url, body) {
+module.exports = async function(program, url, body,headers) {
   console.log(`Fetch Post`);
   // Register websocket url
   try {
-      const headers = {
-          accept: 'application/json',
-          'content-type': 'application/json'
-      };
+    if (headers == undefined) {
+        headers = {
+            accept: 'application/json',
+            'content-type': 'application/json'
+        };
+    }
 
       let theOptions = {
           method: 'POST',
