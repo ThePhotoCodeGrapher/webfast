@@ -1,4 +1,4 @@
-module.exports = function (array) {
+module.exports = async function (array) {
     const { readdirSync } = require("fs");
 
     console.log(`WebFast!! Program`);
