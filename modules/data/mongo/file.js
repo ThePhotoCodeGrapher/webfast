@@ -7,7 +7,7 @@ const client = new MongoClient(uri);
 
 module.exports = {
     uploadBuffer: async function (progam,buffer, filename, metadata = {}, callback) {
-        const dbName = 'eventgo';
+        const dbName = process.env.dbName;
         await client.connect();
 
         const db = client.db(dbName);
