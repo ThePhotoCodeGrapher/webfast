@@ -112,6 +112,25 @@ routes
 Within these folders, you can establish a dynamic setup, as exemplified in the module itself.
 
 ```
+## program.modules.dependOn
+example : 
+```
+module.exports = {
+    dependOn: ['express.app','modules.data'],
+    name: '{UNIQUE_NAME}',
+    run: async function (program, name,functions) {
+    },
+    functions : {
+    }
+}
+```
+To add an dependOn function
+```
+program.modules.dependOn({REQUIRE},program,`{UNIQUE_NAME}-sync`,function(){
+            console.log(`Depend On CallBack`);
+});
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
