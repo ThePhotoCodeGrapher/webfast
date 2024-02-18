@@ -36,7 +36,19 @@ module.exports = async function(db,collection,query,one = false,array) {
         const collection = await database.collection(collectionName);
 
         // Perform the find query
-        result = await collection.find(query).toArray();
+        if (array.sort != undefined && array.skip != undefined && array.limit != undefined) {
+            result = await collection.find(query).sort(array.sort).skip(array.skip).limit(array.limit).toArray();
+        } else if (array.limit != undefined && array.sort) {
+            result = await collection.find(query).sort(array.sort).limit(array.limit).toArray();
+        } else if (array.sort != undefined && array.skip != undefined) {
+            result = await collection.find(query).sort(array.sort).skip(array.skip).toArray();
+        } else if (array.sort != undefined) {
+            result = await collection.find(query).sort(array.sort).toArray();
+        } else if (array.limit != undefined) { 
+            result = await collection.find(query).limit(array.limit).toArray();
+        } else {
+            result = await collection.find(query).toArray();
+        }
 
         if (one == true) {
             result = result[0];
