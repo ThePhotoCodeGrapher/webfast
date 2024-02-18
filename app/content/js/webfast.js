@@ -127,6 +127,16 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
             web.fast.que.state = true;
 
             //alert(web.fast.tools.isMobile);
+            var generateRandomId = async function(length) {
+                var result = '';
+                var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                var charactersLength = characters.length;
+                for (var i = 0; i < length; i++) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
+                return result;
+            };
+
             function arraySend() {
                 try {
                     if (web.fast.user != undefined && web.fast.inial == undefined || window.Telegram.WebApp.initData == `` && web.fast.inial == undefined) {
@@ -134,16 +144,8 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
                         jQuery(`[webfast-get]`).each(async function(){
                             const type =  jQuery(this).attr(`webfast-get`);
                             let  id = jQuery(this).attr(`id`);
+                            console.log(`THE GET`);
                             if (id == undefined) {
-                                var generateRandomId = async function(length) {
-                                    var result = '';
-                                    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                                    var charactersLength = characters.length;
-                                    for (var i = 0; i < length; i++) {
-                                        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                                    }
-                                    return result;
-                                };
                                 id = await generateRandomId(8); // Generate a random ID of length 8
                             }
                             arraySend.push({
@@ -183,6 +185,7 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
                 // We have user data
                 console.log(`Set User Data`);
                 web.fast.user = json;
+                
                 // Now go Through to set all data
                 // Get all webfast client
                 jQuery(`[webfast-client]`).each(function(){
@@ -224,6 +227,13 @@ web.fast.connectWebSocket = function(socketURL,maxRetries = 40, retries = 0) {
 
             web.fast.que.state = Date.now();
             web.fast.receive(`socket`,event.data); // Placeholder for processing response
+            jQuery(document).ready(function(){
+                try {
+                    web.fast.tools.on.connect();
+                } catch (err) {
+                    console.error(`error getting connect data`);
+                }
+            })
             } catch (err) {
                 console.error(`Error Receiving`);
                 console.error(event);
