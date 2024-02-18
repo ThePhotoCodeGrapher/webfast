@@ -441,12 +441,22 @@ module.exports = async function(program,folder) {
 
     // Process scripts
     let scriptsPath   =   program.path.join(__dirname,`telegram`,`scripts`);
-    if (program.set.path != undefined) {
-        scriptsPath = program.path.join(program.set.path,`bots`,`telegram`,`scripts`);
-    }
-
     // Loop Through scripts folder
     let scriptsData = await program.modules.walkDirectory(scriptsPath);
+    let secPath;
+    if (program.set.path != undefined) {
+        // Get extra data
+
+        secPath = program.path.join(program.set.path,`bots`,`telegram`,`scripts`);
+        secData = await program.modules.walkDirectory(secPath);
+
+        // Concat scsriptsdata with secData
+        if (secData.length > 0) {
+        const combinedArray = scriptsData.concat(secData);
+        scriptsData = combinedArray;
+        }
+    }
+
     
     // Let's loop througha and if no extension it's folder
     let allScripts = {
