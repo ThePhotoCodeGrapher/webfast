@@ -13,7 +13,7 @@ module.exports = {
     addToCollection : async function (program,collectionName, fieldName, data,search) {
         try {
             await client.connect();
-            const db = client.db('eventgo');
+            const db = client.db(process.env.dbName);
             const collection = await db.collection(collectionName);
     
             // Check if the field is an array in the existing document
