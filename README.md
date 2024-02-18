@@ -6,6 +6,9 @@ WebFast! is a lightweight, model-based framework developed by Hybrid Institute. 
 
 WebFast! provides a flexible and intuitive platform for creating web applications without the need for extensive coding. It empowers users to leverage a model-based approach, making it accessible to a broader audience, including those with limited coding experience.
 
+## Telegram Community Group
+Join the [WebFast! Telegram Community](https://t.me/webfast_community) for quick questions and further discussion of development of the webFast! Framework.
+
 ## Features
 
 - **Lightweight**: Keep your projects streamlined with a minimalistic approach.
@@ -116,6 +119,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 For questions or feedback, please feel free to [contact me on LinkedIn](https://linkedin.com/in/kaigartner). You can also reach out to me on Instagram: [@kaigartner](https://instagram.com/kaigartner).
+
+
 
 ---
 
