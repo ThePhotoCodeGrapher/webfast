@@ -97,6 +97,18 @@ web.fast = {
         list : function(data) {
             console.log(`Processing List`);
         }
+    },
+    telegram : function(action){
+        try {
+            const telegram = window.Telegram;
+            const actionFunction = telegram[action];
+            console.log(`TELEGRAM`,action);
+            return actionFunction;
+        } catch (err) {
+            //console.error(Err);
+            console.error(`NO TELEGRAM`,action);
+            return false;
+        }
     }
 }
 // Connect to the Socket.IO server
