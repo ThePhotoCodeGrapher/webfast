@@ -1,6 +1,6 @@
 {
   "name": "webfast",
-  "version": "0.1.85",
+  "version": "0.1.86",
   "description": "WebFast! Bot Application, including TON mini-apps for makign it easy and fast to build ini-apps",
   "main": "index.js",
   "repository": {

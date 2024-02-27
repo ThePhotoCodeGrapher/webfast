@@ -99,15 +99,68 @@ web.fast = {
         }
     },
     telegram : function(action){
-        try {
-            const telegram = window.Telegram;
-            const actionFunction = telegram[action];
-            console.log(`TELEGRAM`,action);
-            return actionFunction;
-        } catch (err) {
-            //console.error(Err);
-            console.error(`NO TELEGRAM`,action);
-            return false;
+        // check if action is to set frame
+        if (action == `frame`) {
+            return {
+                get : async function(id) {
+                    console.log(`Get Frame for ID`,id);
+                },
+                close : async function(id) {
+                    console.log(`Close Frame`);
+                },
+                set : async function(id,url,closeAction,zIndex = 9990) {
+                    if (web.fast.user != undefined) {
+                        //console.error(`NO USER`);
+                        //return window.location.href = url;
+                        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                    }
+                    console.log(`Telegram Frame Set`,id,url,closeAction);
+                    let iframe = document.createElement('iframe');
+                    iframe.src = url; // Replace with your desired URL
+
+                    const settedID = ``+id;
+                    // Set additional attributes (optional)
+                    iframe.style.border = 'none'; // Remove the border
+                    iframe.style.width = '100vw'; // Set width to 100vw
+                    iframe.style.height = '100vh'; // Set height to 100vh
+                    iframe.style.top = '0'; // Set height to 100vh
+                    iframe.style.left = '0'; // Set height to 100vh
+                    iframe.style[`z-index`] = zIndex; // Set height to 100vh
+                    iframe.id = settedID;
+
+                    iframe.style.position = 'fixed';
+
+                    // Append the iframe to the body
+                    document.body.appendChild(iframe);
+                    jQuery(iframe).attr(`id`,settedID);
+                    jQuery(iframe).attr(`wbfst-frame`,settedID);
+
+                    try {
+                        //window.Telegram.WebApp.web_app_open_link(url);
+                        if (web.fast.user != undefined) {
+                            window.closeIframe = function() {
+                                console.log(`Close Iframe`,id);
+                                //jQuery(`#${id}`).hide();
+                                closeAction(id);
+                            } 
+                        } else {
+                            // Set on click event
+                            if (closeAction != undefined) {
+                                console.log(`Set Close Action`);
+                                window.closeIframe = function() {
+                                    console.log(`Close Iframe`,id);
+                                    //jQuery(`#${id}`).hide();
+                                    closeAction(id);
+                                } 
+                            }
+                        }
+
+                    } catch (err) {
+                        console.error(err);
+                        console.error(`Error opening link`,url);
+                    }
+                }
+            }
         }
     }
 }

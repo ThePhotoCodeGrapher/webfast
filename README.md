@@ -130,6 +130,19 @@ program.modules.dependOn({REQUIRE},program,`{UNIQUE_NAME}-sync`,function(){
             console.log(`Depend On CallBack`);
 });
 ```
+## NEW BETA FEATURE
+Feature where youo can add a special frame for multiple views through telegram without reloading
+````
+await web.fast.telegram(`frame`).set(id,`https://${window.location.hostname}/concepts/esimco/package#${id}`,async function(id){
+    console.log(`Clicked Close`,id);
+    const frame = jQuery(`[wbfst-frame="${id}"]`);
+    console.log(`The Frame`,frame);
+    jQuery(frame).animate({ opacity:0 }, 600,function(){
+        jQuery(this).remove();
+    });
+    
+});
+````
 
 ## License
 
