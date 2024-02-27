@@ -67,65 +67,67 @@ module.exports = async function(db,collection,query,one = false,array) {
         }
 
         // Check if profile image to get it from db
-        if (result.profileImage != undefined && array.image == true) {
-            const profileImage = await program.modules.data.file.downloadBuffer(result.profileImage,process.env.dbName);
+        if (result != undefined) {
+            if (result.profileImage != undefined && array.image == true) {
+                const profileImage = await program.modules.data.file.downloadBuffer(result.profileImage,process.env.dbName);
 
-            // Set in dynamic routing for serving
-            let sizeMeta = {};
-            let other = {}
-            for (let pi in profileImage) {
-                // Profile image
-                const theImage = profileImage[pi];
+                // Set in dynamic routing for serving
+                let sizeMeta = {};
+                let other = {}
+                for (let pi in profileImage) {
+                    // Profile image
+                    const theImage = profileImage[pi];
 
-                // Get the meta
-                const imageMeta = theImage.metadata;
+                    // Get the meta
+                    const imageMeta = theImage.metadata;
 
-                // Sizes
-                const size = imageMeta.size;
+                    // Sizes
+                    const size = imageMeta.size;
 
-                const sizeKey = `${size.width}x${size.height}`;
-                const setUUID = program.uuid.v4();
-                sizeMeta[setUUID] = {
-                    buffer : theImage.buffer,
-                    meta : imageMeta
-                }
-                console.log(`The Size Meta`);
-            }
-
-            // Now we have sizes thingy so create a route for this specific uuid
-            const dynamicLink = `/dynamic/${result.profileImage}/list`;
-            result.imageList = `${process.env.url}${dynamicLink.slice(1)}`;
-            result.images = sizeMeta;
-
-            const routeCheck = await routeExists(dynamicLink);
-            if (!routeCheck) {
-                program.express.app.get(dynamicLink, async (req, res) => {
-                    // Requesting image
-                    console.log(`Requesting dynamic link`);
-                    // Send buffer image as image
-                    // Set content type header to indicate that you're sending an image
-                    res.setHeader('Content-Type', 'application/json');
-
-                    // Send the image buffer as the response body
-                    for (let sizeKey in sizeMeta) {
-                        const item = sizeMeta[sizeKey];
-                        other[sizeKey] = item.meta;
-
-                        // Create dynamic url for this on
-                        const imageDynamicPath = `/dynamic/${sizeKey}.${item.meta.type}`;
-                        const imageLinkURL = `https://${process.env.url}${imageDynamicPath.slice(1)}`
-                        //other[sizeKey].link = imageLinkURL;
-
-                        // generate dynamic url
-                        
+                    const sizeKey = `${size.width}x${size.height}`;
+                    const setUUID = program.uuid.v4();
+                    sizeMeta[setUUID] = {
+                        buffer : theImage.buffer,
+                        meta : imageMeta
                     }
-                    
-                    res.send(JSON.stringify(other, null, 2));
-                });
-            }
-            console.log(`Profile Image`);
+                    console.log(`The Size Meta`);
+                }
 
-            // generate paths
+                // Now we have sizes thingy so create a route for this specific uuid
+                const dynamicLink = `/dynamic/${result.profileImage}/list`;
+                result.imageList = `${process.env.url}${dynamicLink.slice(1)}`;
+                result.images = sizeMeta;
+
+                const routeCheck = await routeExists(dynamicLink);
+                if (!routeCheck) {
+                    program.express.app.get(dynamicLink, async (req, res) => {
+                        // Requesting image
+                        console.log(`Requesting dynamic link`);
+                        // Send buffer image as image
+                        // Set content type header to indicate that you're sending an image
+                        res.setHeader('Content-Type', 'application/json');
+
+                        // Send the image buffer as the response body
+                        for (let sizeKey in sizeMeta) {
+                            const item = sizeMeta[sizeKey];
+                            other[sizeKey] = item.meta;
+
+                            // Create dynamic url for this on
+                            const imageDynamicPath = `/dynamic/${sizeKey}.${item.meta.type}`;
+                            const imageLinkURL = `https://${process.env.url}${imageDynamicPath.slice(1)}`
+                            //other[sizeKey].link = imageLinkURL;
+
+                            // generate dynamic url
+                            
+                        }
+                        
+                        res.send(JSON.stringify(other, null, 2));
+                    });
+                }
+                console.log(`Profile Image`);
+
+                // generate paths
+            }
         }
 
         if (callback != undefined) {

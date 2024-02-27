@@ -1,6 +1,6 @@
 {
   "name": "webfast",
-  "version": "0.1.84",
+  "version": "0.1.85",
   "description": "WebFast! Bot Application, including TON mini-apps for makign it easy and fast to build ini-apps",
   "main": "index.js",
   "repository": {
@@ -25,14 +25,17 @@
     "generator",
     "mini-app",
     "express",
-    "bots",
+    "bot",
     "famework",
     "ejs",
     "javascript",
     "jquery",
     "webfast",
     "dynamic",
-    "model"
+    "model",
+    "mini app",
+    "webflow",
+    "lowcode"
   ],
   "author": "Kai Gartner",
   "license": "ISC",
