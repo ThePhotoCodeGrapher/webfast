@@ -53,6 +53,7 @@ module.exports = async function(program,json) {
     restArray.int = setInterval(function(){
         console.log(`Set INterval`);
         restArray.currencySync();
+        console.log(Date.now(),program.tmp.currency);
     },14 * 60 * 1000)
     
     // Sync Onces
