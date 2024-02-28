@@ -15,6 +15,10 @@ module.exports = async function(program, url, body,headers) {
           body: JSON.stringify(body),
       };
 
+      if (body == undefined) {
+        delete theOptions.body;
+      }
+
       // Using standard fetch function
       const response = await fetch(url, theOptions);
         // Get response body
@@ -24,7 +28,7 @@ module.exports = async function(program, url, body,headers) {
         const respHeaders = response.headers;
 
       if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(respBody);
       }
 
       const responseData = respBody;
@@ -33,7 +37,7 @@ module.exports = async function(program, url, body,headers) {
       // Return response data or true to indicate success
       return responseData || true;
   } catch (err) {
-      console.error('Error in post:', err.message);
+      console.error('Error in get:', err.message);
       return false;
   }
 };

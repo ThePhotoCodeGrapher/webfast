@@ -112,7 +112,7 @@ module.exports = async function (array) {
 
                 // Now include this thing then
                 try {
-                    program.modules[reqFunc.name] = await reqFunc.run(program,reqFunc.name,reqFunc.functions);
+                    program.modules[reqFunc.name.replace(`-sync`,``)] = await reqFunc.run(program,reqFunc.name,reqFunc.functions);
                     if (callback != undefined) {
                         return callback(program,name)
                     } else {
