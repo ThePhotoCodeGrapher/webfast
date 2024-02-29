@@ -286,25 +286,6 @@ wss.on('connection', async (ws, req) => {
         console.error('Received data has been tampered with');
     }
 
-    // Check if data has order
-    // Check if action in this params and also if action order if user order 
-    // otherwise who error
-    console.log(`Params`);
-    if (parsedQuery.start_param != undefined) {
-        const startSplit = parsedQuery.start_param.split(`__`);
-        const uuid = startSplit[0];
-        const action = startSplit[1];
-
-        // Check action and if we have this action in custom routes thingy
-        try {
-            await program.express.process.params(program,ws,action,uuid,parsedQuery,clientId);
-        } catch (err) {
-            // Error for params
-            console.error(`Error for program params start_param`);
-        }
-    }
-
-
     // Store the WebSocket connection with its ID in the map
     clients.set(clientId, ws);
 
@@ -373,10 +354,28 @@ wss.on('connection', async (ws, req) => {
             //program.express.process.socket.api.
             // TODO location
             ws.send(JSON.stringify({ type: 'user', clientId: clientId, data : sendData }));
-            
         }});
     }
     //ws.send(JSON.stringify({ type: 'clientId', id: clientId, params: parsedQuery }));
+
+
+    // Check if data has order
+    // Check if action in this params and also if action order if user order 
+    // otherwise who error
+    if (parsedQuery.start_param != undefined) {
+        const startSplit = parsedQuery.start_param.split(`__`);
+        const uuid = startSplit[0];
+        const action = startSplit[1];
+
+        // Check action and if we have this action in custom routes thingy
+        try {
+            const userJSON = JSON.parse(JSON.parse(parsedQuery.user));
+            await program.express.process.params(program,ws,action,uuid,parsedQuery,clientId,userJSON);
+        } catch (err) {
+            // Error for params
+            console.error(`Error for program params start_param`);
+        }
+    }
 
     // Set up a ping interval to keep the connection alive
     const pingInterval = setInterval(() => {

@@ -1,6 +1,6 @@
 {
   "name": "webfast",
-  "version": "0.1.86",
+  "version": "0.1.87",
   "description": "WebFast! Bot Application, including TON mini-apps for makign it easy and fast to build ini-apps",
   "main": "index.js",
   "repository": {
@@ -35,7 +35,13 @@
     "model",
     "mini app",
     "webflow",
-    "lowcode"
+    "lowcode",
+    "mollie",
+    "payment",
+    "ideal",
+    "creditcard",
+    "applepay",
+    "googlepay"
   ],
   "author": "Kai Gartner",
   "license": "ISC",

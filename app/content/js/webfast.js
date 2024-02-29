@@ -5,6 +5,16 @@ web.fast = {
     action : function(data,ell) {
         console.log(`Action Function`,data,ell);
     },
+    redirect :function(event) {
+        console.log(`Received Redirect`,event);
+        const state = event.type;
+        if (state == true) {
+            // Redirect
+            window.location.replace(event.url);
+        } else {
+            console.error(`Something wrong redirect`,event);
+        }
+    },
     functions : {
         isURL : function(str) {
             // Regular expression to check if a string is a URL
