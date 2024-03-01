@@ -5,6 +5,17 @@ web.fast = {
     action : function(data,ell) {
         console.log(`Action Function`,data,ell);
     },
+    getCookieValue : function(cookieName) {
+        let allCookies = document.cookie;
+        let cookies = document.cookie.split("; ");
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].split("=");
+            if (cookie[0] === cookieName) {
+            return decodeURIComponent(cookie[1]);
+            }
+        }
+        return null; // Cookie not found
+    },
     redirect :async function(data) {
         console.log(`Received Redirect`,data.event);
         const state = data.event.type;
