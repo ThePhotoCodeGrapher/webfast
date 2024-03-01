@@ -5,14 +5,44 @@ web.fast = {
     action : function(data,ell) {
         console.log(`Action Function`,data,ell);
     },
-    redirect :function(event) {
-        console.log(`Received Redirect`,event);
-        const state = event.type;
-        if (state == true) {
+    redirect :async function(data) {
+        console.log(`Received Redirect`,data.event);
+        const state = data.event.type;
+        if (state == true && web.fast.redirected == undefined) {
             // Redirect
-            window.location.replace(event.url);
+            console.log(`Replace to : `, data.event.url);
+            web.fast.redirected = Date.now();
+            
+            // check if new hash
+            const sendData = telegram.initData.replace(`__order`,``)
+            
+            const id = data.event.requestID;
+            if (web.fast.user != undefined && jQuery(`[wbfst-frame="${id}"]`).length == 0) {
+                //const myUrl = new URL(data.event.url);
+                //history.pushState({}, null, myUrl); // Update the URL without reloading the page
+                //window.location.hash = window.location.hash.replace(`__order`,``);
+                window.Telegram.WebView.onEvent(`back_button_pressed`, function(event){
+                    console.log(`Back Button Event Pressed`,event);
+                    const frame = jQuery(`[wbfst-frame="${id}"]`);
+                    jQuery(frame).animate({ opacity:0 }, 600,function(){
+                        jQuery(this).remove();
+                    });
+                    window.Telegram.WebApp.BackButton.hide();
+                })
+                await web.fast.telegram(`frame`).set(id,data.event.url.replace(`https://`,``),async function(id){
+                    console.log(`Clicked Close`,id);
+                    const frame = jQuery(`[wbfst-frame="${id}"]`);
+                    console.log(`The Frame`,frame);
+                    jQuery(frame).animate({ opacity:0 }, 600,function(){
+                        jQuery(this).remove();
+                    });
+                    
+                });
+            }else {
+                window.location.replace(data.event.url);
+            }
         } else {
-            console.error(`Something wrong redirect`,event);
+            //console.error(`Something wrong redirect`,data.event);
         }
     },
     functions : {
@@ -182,11 +212,18 @@ if (webfastSocket == undefined) {
 }
 
 let setData;
+// Split hash
+const locSplit = window.location.hash.split(`__`);
+
+//alert(locSplit);
 if (telegram.initData == ``) {
     setData = `hybrid.institute.anonymous`
+} else if (locSplit.length > 1 && locSplit[1] == `redirected`) {
+    setData = telegram.initData.replace(`__order&`,`&`);
 } else {
     setData = telegram.initData;
 }
+//alert(setData);
 
 const socketURL = `wss://${webfastSocket.replace(`https://`,``)}socket.io/?qbt=${setData}`;
 

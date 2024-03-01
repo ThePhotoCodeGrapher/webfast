@@ -365,15 +365,20 @@ wss.on('connection', async (ws, req) => {
     if (parsedQuery.start_param != undefined) {
         const startSplit = parsedQuery.start_param.split(`__`);
         const uuid = startSplit[0];
-        const action = startSplit[1];
 
-        // Check action and if we have this action in custom routes thingy
-        try {
-            const userJSON = JSON.parse(JSON.parse(parsedQuery.user));
-            await program.express.process.params(program,ws,action,uuid,parsedQuery,clientId,userJSON);
-        } catch (err) {
-            // Error for params
-            console.error(`Error for program params start_param`);
+        if (startSplit.length <= 1) {
+            console.log(`Start split is one`);
+        } else {
+            const action = startSplit[1];
+
+            // Check action and if we have this action in custom routes thingy
+            try {
+                const userJSON = JSON.parse(JSON.parse(parsedQuery.user));
+                await program.express.process.params(program,ws,action,uuid,parsedQuery,clientId,userJSON);
+            } catch (err) {
+                // Error for params
+                console.error(`Error for program params start_param`);
+            }
         }
     }
 
@@ -409,7 +414,7 @@ wss.on('connection', async (ws, req) => {
             // Check if function is running in program modules that you can add in the init scirpt when using remote
             if (program.express.process != undefined) {
                 try {
-                    let resp = await program.express.process[split[0]][split[1]][split[2]](program,ws,json,data,path,clientId,ws);
+                    let resp = await program.express.process[split[0]][split[1]][split[2]](program,ws,json,data,path,clientId,ws,parsedQuery);
                     if (resp != false) {
                         ws.send(JSON.stringify(resp));
                     }
