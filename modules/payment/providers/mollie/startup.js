@@ -64,13 +64,15 @@ module.exports = async function(program,json) {
     const requestUSD = await restArray.get(getURL,{
         locale : "en_US",
         'amount[value]'  :  "100.00",
-        'amount[currency]'  :  "USD"
+        'amount[currency]'  :  "USD",
+        "include"       :   "pricing"
     })
 
     const requestEU = await restArray.get(getURL,{
         locale : "en_US",
         'amount[value]'  :  "100.00",
-        'amount[currency]'  :  "EUR"
+        'amount[currency]'  :  "EUR",
+        "include"       :   "pricing"
     })
 
     // Process both
@@ -106,9 +108,77 @@ module.exports = async function(program,json) {
                     status : itemData.status,
                     res : itemData.resource,
                     images : itemData.image,
-                    currency : {}
+                    currency : {},
+                    pricing : {
+                        items : itemData.pricing
+                    }
                 }
             }
+
+            // Now loop through pricing to see max and min
+            let allPricing = [];
+
+            let maxPers = 0;
+            let minPers = 0;
+            let maxFix = 0;
+            let minFix = 0;
+            let pricingCurrency = [];
+            for (let prI in itemData.pricing) {
+                // get item
+                const pricing = itemData.pricing[prI];
+
+                let setPricing = {};
+
+                for (let key in pricing) {
+                    switch (key) {
+                        case `variable`:
+                            const thePerc = Number(pricing[key]);
+                            if (thePerc > maxPers) {
+                                maxPers = thePerc;
+                            }
+                            if (thePerc < minPers || minPers == 0) {
+                                minPers = thePerc;
+                            }
+                            setPricing.percentage = thePerc;
+                        break;
+                        case `fixed`:
+                            const fixPrice = Number(pricing[key].value);
+                            // Set fix price
+                            if (fixPrice > maxFix) {
+                                maxFix = fixPrice;
+                            }
+                            if (fixPrice < minFix || minFix == 0) {
+                                minFix = fixPrice;
+                            }
+                            pricing[key].value = Number(pricing[key].value);
+                            setPricing[key] = pricing[key];
+
+                            // check if in array
+                            if (pricingCurrency.indexOf(pricing[key].currency) == -1) {
+                                pricingCurrency.push(pricing[key].currency)
+                            }
+                        break;
+                        default:
+                            console.log(`Set Just: ${key}`);
+                            setPricing[key] = pricing[key];
+                    }
+                }
+                allPricing.push(setPricing);
+            }
+            console.log(`We have all pricing per item now`);
+            itemData.pricing = {
+                all : allPricing,
+                perc : {
+                    min : minPers,
+                    max : maxPers
+                },
+                fix : {
+                    min : minFix,
+                    max : maxFix
+                },
+                currencies : pricingCurrency
+            }
+            payar[itemData.id].pricing = itemData.pricing;
 
             // Now grab currency
             const currency = {
