@@ -24,11 +24,16 @@ web.fast = {
             console.log(`Replace to : `, data.event.url);
             web.fast.redirected = Date.now();
             
+            let replacedURL = data.event.url.replace(`https://`,``);
+            if (data.event.full == true) {
+                replacedURL = data.event.url;
+
+            }
             // check if new hash
             const sendData = telegram.initData.replace(`__order`,``)
             
             const id = data.event.requestID;
-            if (web.fast.user != undefined && jQuery(`[wbfst-frame="${id}"]`).length == 0) {
+            if (web.fast.user != undefined && jQuery(`[wbfst-frame="${id}"]`).length == 0 && data.event.full != true) {
                 //const myUrl = new URL(data.event.url);
                 //history.pushState({}, null, myUrl); // Update the URL without reloading the page
                 //window.location.hash = window.location.hash.replace(`__order`,``);
@@ -40,7 +45,7 @@ web.fast = {
                     });
                     window.Telegram.WebApp.BackButton.hide();
                 })
-                await web.fast.telegram(`frame`).set(id,data.event.url.replace(`https://`,``),async function(id){
+                await web.fast.telegram(`frame`).set(id,replacedURL,async function(id){
                     console.log(`Clicked Close`,id);
                     const frame = jQuery(`[wbfst-frame="${id}"]`);
                     console.log(`The Frame`,frame);
@@ -49,7 +54,11 @@ web.fast = {
                     });
                     
                 });
-            }else {
+            }else if (data.event.full == true && web.fast.user != undefined) {
+                // typeof order.state
+                window.Telegram.WebApp.disableClosingConfirmation(false);
+                window.Telegram.WebApp.close();
+            } else {
                 window.location.replace(data.event.url);
             }
         } else {

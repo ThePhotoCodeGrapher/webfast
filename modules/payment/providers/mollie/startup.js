@@ -13,6 +13,7 @@ module.exports = async function(program,json) {
     const functionPath = program.path.join(json.path,`functions`);
     console.log(`Function Path`);
     let restArray = {
+        create : await require(program.path.join(__dirname,`create.js`))(program,json),
         get : async function(url,params) {
             console.log(`GET`);
 
@@ -35,9 +36,11 @@ module.exports = async function(program,json) {
 
             return data;
         },
-        post : async function(url,params) {
+        post : async function(program,url,body,headers) {
             console.log(`POST`);
-
+            
+            const requestPOST = await program.modules.request.post(program,url,body,headers);
+            return requestPOST;
         }
     }
 
@@ -196,5 +199,118 @@ module.exports = async function(program,json) {
 
     restArray.methods = payar;
 
+    // Create dynamic app get for receiving data
+    const fullPath = `${process.env.url.slice(0,-1)}/webhooks/orders/:orderId/:action`;
+    // setup dynamic routing
+    restArray.webhookURL = fullPath;
+    async function functionRequest(req,res,type) {
+        const orderId = req.params.orderId;
+        const action = req.params.action;
+        console.log(`Received data for payment`,type);
+
+        // Get body Data
+        const body = req.body;
+
+        // First grab order
+        let pipeline = [
+            {
+                $match: {
+                uuid: orderId
+                }
+            }
+        ];
+
+        let payment = await program.modules.data.aggregate(program,process.env.dbName, 'payment', pipeline);
+        if (payment.length == 0) {
+            res.status(500);
+            res.send(`FALSE`);
+        } else {
+            payment = payment[0];
+        }
+
+        console.log(`We have payment data`);
+
+        // Check if cancel
+        let order = await program.modules.data.aggregate(program,process.env.dbName, 'order', [
+            {
+                $match: {
+                uuid: payment.order
+                }
+            }
+        ]);
+        order = order[0];
+
+        // We have order add action to state
+        const typeOf = typeof order.state;
+        if (typeOf != `object`) {
+            order.state = [];
+        }
+        order.state[action] = Date.now();
+
+
+        // Get id
+        if (type == `post`) {
+            const paymentID = body.id;
+
+            // Now check payment
+            const getURL = `${json.url}/v2/payments/${paymentID}`
+            const validate = await restArray.get(getURL);
+
+            // Okay we have new data
+            const status = validate.status;
+
+            order.state[status] = Date.now();
+
+            console.log(`To Validate Payment`);
+
+            // Add completed to state if finished
+            if (status == `paid`) {
+                const paidDate = new Date(validate.paidAt);
+                const unixTimestamp = Math.floor(paidDate.getTime() / 1000);
+                order.state[`completed`] = paidDate;
+
+                // Update 
+                const updatedFinal =await program.modules.data.update(process.env.dbName,`order`,{
+                    uuid : orderId
+                },{
+                    $set: {
+                        payed : unixTimestamp,
+                        paymentDetails : validate.details,
+                        countryCode : validate.countryCode,
+                        mode : validate.mode,
+                        state : true
+                    }
+                });
+                console.log(`Final Update`,updatedFinal);
+            }
+        }
+
+
+        const updated =await program.modules.data.update(process.env.dbName,`order`,{
+            uuid : order.uuid
+        },{
+            $set: {
+                state : order.state
+            }
+        });
+
+        // Updated state in order
+        // Now redirect doesn't matter in what
+        const fullPath = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${order.uuid}__redirect`;
+        if (type == `post`) {
+            res.send(`OK`);
+            res.status(200);
+        } else if (action == `page-redirect`) {
+            res.redirect(payment._links.checkout.href)
+        } else {
+            res.redirect(fullPath);   
+        }
+    }
+    program.express.app.get(`/webhooks/orders/:orderId/:action`, async function(req,res){
+        return await functionRequest(req,res,`get`);
+    })
+    program.express.app.post(`/webhooks/orders/:orderId/:action`, async function(req,res){
+        return await functionRequest(req,res,`post`);
+    })
     return restArray;
 }
