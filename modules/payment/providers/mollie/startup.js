@@ -267,7 +267,7 @@ module.exports = async function(program,json) {
             if (status == `paid`) {
                 const paidDate = new Date(validate.paidAt);
                 const unixTimestamp = Math.floor(paidDate.getTime() / 1000);
-                order.state[`completed`] = paidDate;
+                order.state[`completed`] = unixTimestamp;
 
                 // Update 
                 const updatedFinal =await program.modules.data.update(process.env.dbName,`order`,{
@@ -278,10 +278,54 @@ module.exports = async function(program,json) {
                         paymentDetails : validate.details,
                         countryCode : validate.countryCode,
                         mode : validate.mode,
-                        state : true
+                        state : true,
+                        paid : Date.now()
                     }
                 });
                 console.log(`Final Update`,updatedFinal);
+
+                // Check also for message now
+                // Grab message
+                try {
+                    const lastMessageId = order.messages[0];
+                    let messageData = await program.modules.data.aggregate(program,process.env.dbName, 'send', [{$match: {uuid: lastMessageId}}]);
+                    if (messageData.length == 0) {
+                        // No message send
+                        console.error(`No Message Send`);
+                    } else {
+                        messageData = messageData[0];
+                    }
+
+                    const packageID = order.package;
+                    
+                    let packageLine = [{$match: {uuid:packageID}},{$project: {name: 1,description: 1, price:1}}];
+                    let packageData = await program.modules.data.aggregate(program,process.env.dbName, 'pricing', packageLine);
+            
+                    // Okay we have message data
+                    const orderURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${payment.uuid}__redirect`;
+                    const howToURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${payment.uuid}__how-to`;
+                    const referralURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${payment.uuid}__referral`;
+        
+                    const textMessage = `<b>✅ Your payment is received!</b>\n<span class="tg-spoiler">Order ID: <b>${order.uuid}</b></span>\n\nWe are now matching your order and payment. You will receive your ordered prodcut in a few minutes: <b>${String(packageData[0].description).toUpperCase()}</b>`
+                    try {
+                        let telegramSend = await program.modules.telegram.functions.send(program,textMessage,order.user,[
+                            [
+                                { text: 'View Order',  web_app : { url : orderURL}},
+                                { text: 'How to?',  web_app : { url : howToURL}},
+                                { text: 'Referral',  web_app : { url : referralURL}}
+                            ]
+                        ],messageData.message_id);
+
+                        console.log(`Sending telegram`);
+                    } catch(err) {
+                        console.error(err);
+                        console.error(`Error updating message`);
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    console.error(`Something with message`);
+                }
             }
         }
 
@@ -300,7 +344,7 @@ module.exports = async function(program,json) {
         if (type == `post`) {
             res.send(`OK`);
             res.status(200);
-        } else if (action == `page-redirect`) {
+        } else if (action == `page-redirect` || action == `bot-redirect`) {
             res.redirect(payment._links.checkout.href)
         } else {
             res.redirect(fullPath);   

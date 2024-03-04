@@ -24,7 +24,17 @@ module.exports = async function(program, url, body,headers) {
         const respHeaders = response.headers;
 
       if (!response.ok) {
+        if (respBody.parameters != undefined) {
+          // Probably some wait 
+          if (respBody.parameters.retry_after != undefined) {
+            const timeOUtAmount = respBody.parameters.retry_after * 1000*60; // for 1 minute if retry_ is 1 minute
+            await setTimeout(async function(){
+              return await program.modules.request.post(program,url,body,headers);
+            },timeOUtAmount);
+          }
+        } else {
           throw new Error(`HTTP error! Status: ${response.status}`);
+        }
       }
 
       const responseData = respBody;

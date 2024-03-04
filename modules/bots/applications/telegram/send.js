@@ -1,4 +1,4 @@
-module.exports = async function(program,message,id,buttons) {
+module.exports = async function(program,message,id,buttons,messageID) {
     console.log(`Telegram Send`);
     // Create Request for send
     let telegramURL = `https://api.telegram.org/bot${process.env.telegram}`;
@@ -20,7 +20,7 @@ module.exports = async function(program,message,id,buttons) {
     }
 
 
-    const body = {
+    let body = {
         text: message,
         disable_web_page_preview: false,
         disable_notification: false,
@@ -30,7 +30,7 @@ module.exports = async function(program,message,id,buttons) {
     }
 
     // Check if object
-    if (typeof message == `object`) {
+    if (typeof message == `object` && messageID == undefined) {
         if (message.text != undefined && message.image == undefined) {
             body.text = message.text;
             telegramURL = `${telegramURL}/sendMessage`;
@@ -44,6 +44,14 @@ module.exports = async function(program,message,id,buttons) {
             delete body.reply_to_message_id;
             telegramURL = `${telegramURL}/sendPhoto`;
         }
+    } else if (messageID != undefined) {
+        body = {
+            chat_id : id,
+            message_id : messageID,
+            text : message,
+            parse_mode : `HTML`
+        }
+        telegramURL = `${telegramURL}/editMessageText`;
     } else {
         telegramURL = `${telegramURL}/sendMessage`;
     }

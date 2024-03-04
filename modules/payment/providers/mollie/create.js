@@ -60,14 +60,7 @@ module.exports = async function(program,json) {
         // Now upate
         let newState = order.state;
         newState[`waiting`] = Date.now();
-        const updated =await program.modules.data.update(process.env.dbName,`order`,{
-            uuid : order.uuid
-        },{
-            $set: {
-                state : newState,
-                payment : paymentUUID
-            }
-        });
+
         console.log(`Updated`);
 
         console.log(`Made Request`,request);
@@ -83,7 +76,49 @@ module.exports = async function(program,json) {
         // Check url
         redirect.url = pageRedirect;
 
-        // Send Payment info per bot
+        // Send Payment info per bot and link for order
+        console.log(`Send Payment info link per bot`);
+        // create payment url 
+        const orderURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${request.order}__redirect`;
+        // create order url redirect url
+        const paymentRedirect = `${process.env.url.slice(0,-1)}/webhooks/orders/${request.uuid}/bot-redirect`;
+
+        // Create message
+        let payIcon = `!`;
+        if (request.amount.currency.toUpperCase() == `USD`) {
+            payIcon = `$`;
+        }
+        if (request.amount.currency.toUpperCase() == `EUR`) {
+            payIcon = `€`;
+        }
+        const textMessage = `<b>⚠️ Your order is created but unpaid!</b>\n<span class="tg-spoiler">Order ID: <b>${request.order}</b></span>\n\nTo receive your order we would like to ask you to fullfill the payment for the remaining amount of <span class="tg-spoiler"><b>${payIcon} ${request.amount.value}</b></span>.\n\nClick on <u>Pay Now</u> to fullfill your payment or click <u>view order</u> to view your order.`
+        try {
+            let telegramSend = await program.modules.telegram.functions.send(program,textMessage,request.user,[
+                [
+                    //{ text: 'View Order',  web_app : { url : orderURL}},
+                    { text: 'Pay Order',  web_app : { url : paymentRedirect}}
+                ]
+            ]);
+
+            // Now we have message id set that to the order
+
+            // Add update to message order thingy
+
+            const updated =await program.modules.data.update(process.env.dbName,`order`,{
+                uuid : order.uuid
+            },{
+                $set: {
+                    state : newState,
+                    payment : paymentUUID,
+                    messages : [telegramSend.result.uuid]
+                }
+            });
+            console.log(`Telegram Send`);
+        } catch (err) {
+            console.error(err);
+            console.error(`Error with sending to client`);
+        }
+
 
         const sendArray =  {
             func : `redirect`,
