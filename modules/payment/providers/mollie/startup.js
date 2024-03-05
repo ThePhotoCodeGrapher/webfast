@@ -282,7 +282,19 @@ module.exports = async function(program,json) {
                         paid : Date.now()
                     }
                 });
-                console.log(`Final Update`,updatedFinal);
+
+                validate.package = payment.package;
+                validate.order = payment.order;
+                validate.uuid = payment.uuid;
+                validate.user = payment.user;
+
+                const paymentFinale =await program.modules.data.update(process.env.dbName,`payment`,{
+                    uuid : payment.uuid
+                },{
+                    $set: validate
+                });
+
+                console.log(`Final Update`,updatedFinal,paymentFinale);
 
                 // Check also for message now
                 // Grab message
@@ -302,9 +314,9 @@ module.exports = async function(program,json) {
                     let packageData = await program.modules.data.aggregate(program,process.env.dbName, 'pricing', packageLine);
             
                     // Okay we have message data
-                    const orderURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${payment.uuid}__redirect`;
-                    const howToURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${payment.uuid}__how-to`;
-                    const referralURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${payment.uuid}__referral`;
+                    const orderURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${order.uuid}__redirect`;
+                    const howToURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${order.uuid}__how-to`;
+                    const referralURL = `${process.env.webURL.slice(0,-1)}/concepts/esimco/order#${order.uuid}__referral`;
         
                     const textMessage = `<b>✅ Your payment is received!</b>\n<span class="tg-spoiler">Order ID: <b>${order.uuid}</b></span>\n\nWe are now matching your order and payment. You will receive your ordered prodcut in a few minutes: <b>${String(packageData[0].description).toUpperCase()}</b>`
                     try {
@@ -317,6 +329,9 @@ module.exports = async function(program,json) {
                         ],messageData.message_id);
 
                         console.log(`Sending telegram`);
+
+                        // Update order messages
+                        
                     } catch(err) {
                         console.error(err);
                         console.error(`Error updating message`);

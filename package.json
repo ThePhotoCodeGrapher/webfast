@@ -41,7 +41,9 @@
     "ideal",
     "creditcard",
     "applepay",
-    "googlepay"
+    "googlepay",
+    "mollie pay",
+    "payments"
   ],
   "author": "Kai Gartner",
   "license": "ISC",
