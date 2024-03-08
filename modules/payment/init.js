@@ -28,7 +28,16 @@ module.exports = {
                 if (program.set.path == undefined) {
                     continue;
                 }
-                const configRead = JSON.parse(program.fs.readFileSync(program.path.join(program.set.path,`payment.config.json`),`UTF-8`));
+                //const configRead = JSON.parse(program.fs.readFileSync(program.path.join(program.set.path,`payment.config.json`),`UTF-8`));
+                const configRead = {
+                    "mollie"    :   {
+                        "active"    :   process.env.MOLLIE_ACTIVE,
+                        "key"       :   process.env.MOLLIE_KEY,
+                        "partnerId" :   process.env.MOLLIE_PARTNER_ID,
+                        "profileId" :   process.env.MOLLIE_PROFILE_ID,
+                        "url"       :   process.env.MOLLIE_URL
+                    }
+                };
                 // Read
                 const json = configRead[module.name];
                 if (json == undefined) {
