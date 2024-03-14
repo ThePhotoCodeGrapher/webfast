@@ -103,15 +103,18 @@ module.exports = async function(program,json) {
             // Now we have message id set that to the order
 
             // Add update to message order thingy
+            let setArray = {
+                state : newState,
+                payment : paymentUUID,
+                messages : [telegramSend.result.uuid]
+            }
+            setArray.ref = order.ref;
 
+            order.state.payReqCreated = Date.now();
             const updated =await program.modules.data.update(process.env.dbName,`order`,{
                 uuid : order.uuid
             },{
-                $set: {
-                    state : newState,
-                    payment : paymentUUID,
-                    messages : [telegramSend.result.uuid]
-                }
+                $set: setArray
             });
             console.log(`Telegram Send`);
         } catch (err) {

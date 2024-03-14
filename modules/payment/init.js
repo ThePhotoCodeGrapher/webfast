@@ -31,7 +31,7 @@ module.exports = {
                 //const configRead = JSON.parse(program.fs.readFileSync(program.path.join(program.set.path,`payment.config.json`),`UTF-8`));
                 const configRead = {
                     "mollie"    :   {
-                        "active"    :   process.env.MOLLIE_ACTIVE,
+                        "active"    :   Boolean(process.env.MOLLIE_ACTIVE),
                         "key"       :   process.env.MOLLIE_KEY,
                         "partnerId" :   process.env.MOLLIE_PARTNER_ID,
                         "profileId" :   process.env.MOLLIE_PROFILE_ID,
